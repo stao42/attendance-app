@@ -3,6 +3,13 @@
 @section('title', 'プロフィール設定 - CoachTech')
 
 @section('content')
+@if($user->is_first_login)
+<div style="background-color: #FFF5F5; border: 1px solid #FFE5E5; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+    <h2 style="color: #FF5555; font-size: 18px; font-weight: 600; margin-bottom: 10px;">初回ログイン</h2>
+    <p style="color: #333333; font-size: 16px; margin: 0;">プロフィール情報を設定してください。設定完了後、フリマアプリをご利用いただけます。</p>
+</div>
+@endif
+
 <h1 style="font-size: 36px; font-weight: 700; color: #000000; margin-bottom: 30px;">プロフィール設定</h1>
 
 <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">

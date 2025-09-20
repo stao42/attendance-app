@@ -26,6 +26,7 @@ class User extends Authenticatable
         'postal_code',
         'address',
         'building',
+        'is_first_login',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_first_login' => 'boolean',
         ];
     }
 

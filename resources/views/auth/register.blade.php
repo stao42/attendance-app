@@ -118,7 +118,7 @@
         }
 
         .auth-link a {
-            color: #FF5555;
+            color: #0073CC;
             font-size: 16px;
             text-decoration: none;
             font-weight: 500;
@@ -154,21 +154,13 @@
     <main class="main-content">
         <div class="auth-container">
             <h1 class="auth-title">会員登録</h1>
-            
-            @if ($errors->any())
-                <div class="error-message">
-                    @foreach ($errors->all() as $error)
-                        {{ $error }}
-                    @endforeach
-                </div>
-            @endif
 
             <form method="POST" action="{{ route('register') }}">
                 @csrf
-                
+
                 <div class="form-group">
                     <label for="name" class="form-label">ユーザー名</label>
-                    <input type="text" id="name" name="name" class="form-input @error('name') error @enderror" value="{{ old('name') }}" required>
+                    <input type="text" id="name" name="name" class="form-input @error('name') error @enderror" value="{{ old('name') }}">
                     @error('name')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
@@ -176,7 +168,7 @@
 
                 <div class="form-group">
                     <label for="email" class="form-label">メールアドレス</label>
-                    <input type="email" id="email" name="email" class="form-input @error('email') error @enderror" value="{{ old('email') }}" required>
+                    <input type="text" id="email" name="email" class="form-input @error('email') error @enderror" value="{{ old('email') }}">
                     @error('email')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
@@ -184,21 +176,21 @@
 
                 <div class="form-group">
                     <label for="password" class="form-label">パスワード</label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') error @enderror" required>
+                    <input type="password" id="password" name="password" class="form-input @error('password') error @enderror">
                     @error('password')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="form-group">
-                    <label for="password_confirmation" class="form-label">パスワード確認</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input @error('password_confirmation') error @enderror" required>
+                    <label for="password_confirmation" class="form-label">確認用パスワード</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input @error('password_confirmation') error @enderror">
                     @error('password_confirmation')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <button type="submit" class="auth-button">会員登録する</button>
+                <button type="submit" class="auth-button">登録する</button>
             </form>
 
             <div class="auth-link">

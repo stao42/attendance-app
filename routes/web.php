@@ -18,28 +18,28 @@ use App\Http\Controllers\FavoriteController;
 // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // 商品ルート（要件に合わせてパスを修正）
-Route::get('/', [ProductController::class, 'index'])->name('products.index');
+Route::get('/', [ProductController::class, 'index'])->middleware('check.first.login')->name('products.index');
 Route::get('/item/{product}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/sell', [ProductController::class, 'create'])->middleware('auth')->name('products.create');
-Route::post('/products', [ProductController::class, 'store'])->middleware('auth');
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->middleware('auth')->name('products.edit');
-Route::put('/products/{product}', [ProductController::class, 'update'])->middleware('auth');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->middleware('auth');
+Route::get('/sell', [ProductController::class, 'create'])->middleware(['auth', 'check.first.login'])->name('products.create');
+Route::post('/products', [ProductController::class, 'store'])->middleware(['auth', 'check.first.login']);
+Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->middleware(['auth', 'check.first.login'])->name('products.edit');
+Route::put('/products/{product}', [ProductController::class, 'update'])->middleware(['auth', 'check.first.login']);
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->middleware(['auth', 'check.first.login']);
 
 // プロフィールルート（要件に合わせてパスを修正）
-Route::get('/mypage', [ProfileController::class, 'show'])->middleware('auth')->name('profile.show');
+Route::get('/mypage', [ProfileController::class, 'show'])->middleware(['auth', 'check.first.login'])->name('profile.show');
 Route::get('/mypage/profile', [ProfileController::class, 'edit'])->middleware('auth')->name('profile.edit');
 Route::put('/profile', [ProfileController::class, 'update'])->middleware('auth')->name('profile.update');
 
 // コメントルート
-Route::post('/comments', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
+Route::post('/comments', [CommentController::class, 'store'])->middleware(['auth', 'check.first.login'])->name('comments.store');
 
 // 購入ルート（要件に合わせてパスを修正）
-Route::get('/purchase/{product}', [PurchaseController::class, 'create'])->middleware('auth')->name('purchases.create');
-Route::post('/purchase/{product}', [PurchaseController::class, 'store'])->middleware('auth')->name('purchases.store');
-Route::get('/purchase/address/{product}', [PurchaseController::class, 'editAddress'])->middleware('auth')->name('purchases.edit_address');
-Route::put('/purchase/address/{product}', [PurchaseController::class, 'updateAddress'])->middleware('auth')->name('purchases.update_address');
+Route::get('/purchase/{product}', [PurchaseController::class, 'create'])->middleware(['auth', 'check.first.login'])->name('purchases.create');
+Route::post('/purchase/{product}', [PurchaseController::class, 'store'])->middleware(['auth', 'check.first.login'])->name('purchases.store');
+Route::get('/purchase/address/{product}', [PurchaseController::class, 'editAddress'])->middleware(['auth', 'check.first.login'])->name('purchases.edit_address');
+Route::put('/purchase/address/{product}', [PurchaseController::class, 'updateAddress'])->middleware(['auth', 'check.first.login'])->name('purchases.update_address');
 
 // いいねルート
-Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->middleware('auth')->name('favorites.store');
-Route::delete('/favorites/{product}', [FavoriteController::class, 'destroy'])->middleware('auth')->name('favorites.destroy');
+Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->middleware(['auth', 'check.first.login'])->name('favorites.store');
+Route::delete('/favorites/{product}', [FavoriteController::class, 'destroy'])->middleware(['auth', 'check.first.login'])->name('favorites.destroy');
