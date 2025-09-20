@@ -47,6 +47,11 @@ class ProfileController extends Controller
 
         $user->update($data);
 
+        // 初回ログインの場合、フラグを更新
+        if ($user->is_first_login) {
+            $user->update(['is_first_login' => false]);
+        }
+
         return redirect()->route('profile.show')->with('success', 'プロフィールを更新しました。');
     }
 }
