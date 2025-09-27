@@ -6,6 +6,8 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Actions\Fortify\AuthenticateUser;
+use App\Actions\Fortify\AttemptToAuthenticate;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -30,15 +32,25 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);
+        // Fortify::authenticateUsing(function (Request $request) {
+        //     return app(AttemptToAuthenticate::class)->handle($request, function ($request) {
+        //         return redirect()->intended('/');
+        //     });
+        // });
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
-        // ビューレスポンスの設定
-        Fortify::loginView(function () {
-            return view('auth.login');
+        // メール認証機能を有効化
+        Fortify::verifyEmailView(function () {
+            return view('auth.verify-email');
         });
+
+        // ビューレスポンスの設定
+        // Fortify::loginView(function () {
+        //     return view('auth.login');
+        // });
 
         Fortify::registerView(function () {
             return view('auth.register');

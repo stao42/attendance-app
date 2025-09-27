@@ -155,20 +155,20 @@
         <div class="auth-container">
             <h1 class="auth-title">ログイン</h1>
 
-            @if ($errors->any())
-                <div class="error-message">
-                    @foreach ($errors->all() as $error)
-                        {{ $error }}
-                    @endforeach
-                </div>
-            @endif
+            {{-- @if ($errors->any()) --}}
+            {{--     <div class="error-message"> --}}
+            {{--         @foreach ($errors->all() as $error) --}}
+            {{--             {{ $error }} --}}
+            {{--         @endforeach --}}
+            {{--     </div> --}}
+            {{-- @endif --}}
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
                 <div class="form-group">
                     <label for="email" class="form-label">メールアドレス</label>
-                    <input type="email" id="email" name="email" class="form-input @error('email') error @enderror" value="{{ old('email') }}" required>
+                    <input type="text" id="email" name="email" class="form-input @error('email') error @enderror" value="{{ old('email') }}">
                     @error('email')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
@@ -176,7 +176,7 @@
 
                 <div class="form-group">
                     <label for="password" class="form-label">パスワード</label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') error @enderror" required>
+                    <input type="password" id="password" name="password" class="form-input @error('password') error @enderror">
                     @error('password')
                         <div class="field-error">{{ $message }}</div>
                     @enderror

@@ -1,19 +1,32 @@
 @extends('layouts.app')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('title', 'プロフィール - CoachTech')
 
 @section('content')
 <div style="margin-top: 20px;">
     <!-- ユーザー情報 -->
-    <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 40px; padding: 20px; background-color: #F5F5F5; border-radius: 10px;">
-        <div style="width: 150px; height: 150px; background-color: #D9D9D9; border-radius: 50%; overflow: hidden;">
-            @if($user->profile_image)
-                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" style="width: 100%; height: 100%; object-fit: cover;">
+    <div class="profile-section">
+        <div class="profile-image-container">
+            @if($user->profile_image && Storage::disk('public')->exists($user->profile_image))
+                @php
+                    $imageUrl = Storage::disk('public')->url($user->profile_image);
+                @endphp
+                <img src="{{ $imageUrl }}" alt="プロフィール画像" class="profile-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <!-- デバッグ情報 -->
+                <!-- Profile image path: {{ $user->profile_image }} -->
+                <!-- Storage URL: {{ $imageUrl }} -->
+                <!-- File exists: {{ Storage::disk('public')->exists($user->profile_image) ? 'yes' : 'no' }} -->
             @endif
         </div>
-        <div>
-            <h1 style="font-size: 36px; font-weight: 700; color: #000000; margin-bottom: 20px;">{{ $user->name }}</h1>
-            <a href="{{ route('profile.edit') }}" class="btn btn-primary">プロフィールを編集</a>
+        <div class="profile-info">
+            <h1 class="profile-name">{{ $user->name }}</h1>
+        </div>
+        <div class="profile-actions">
+            <a href="{{ route('profile.edit') }}" class="edit-profile-btn">プロフィールを編集</a>
         </div>
     </div>
 
@@ -35,7 +48,10 @@
                                     @if(str_starts_with($purchase->product->image, 'http'))
                                         <img src="{{ $purchase->product->image }}" alt="{{ $purchase->product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     @else
-                                        <img src="{{ asset('storage/' . $purchase->product->image) }}" alt="{{ $purchase->product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @php
+                                            $filename = basename($purchase->product->image);
+                                        @endphp
+                                        <img src="{{ asset('images/products/' . $filename) }}" alt="{{ $purchase->product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     @endif
                                 @else
                                     商品画像
@@ -66,7 +82,10 @@
                                     @if(str_starts_with($product->image, 'http'))
                                         <img src="{{ $product->image }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     @else
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @php
+                                            $filename = basename($product->image);
+                                        @endphp
+                                        <img src="{{ asset('images/products/' . $filename) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     @endif
                                 @else
                                     商品画像
@@ -97,4 +116,256 @@
         @endif
     </div>
 </div>
+
+<style>
+/* プロフィールセクション */
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 0;
+}
+
+.profile-image-container {
+    width: 150px;
+    height: 150px;
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 36px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.profile-actions {
+    flex-shrink: 0;
+}
+
+.edit-profile-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #FFFFFF;
+    color: #FF5555;
+    border: 2px solid #FF5555;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+    background-color: #FF5555;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+/* レスポンシブデザイン対応 */
+@media (max-width: 1540px) {
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 850px) {
+    .container {
+        padding: 0 20px;
+    }
+
+    /* プロフィールセクション */
+    .profile-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 0;
+    }
+
+    .profile-image-container {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-name {
+        font-size: 28px;
+    }
+
+    /* 商品グリッド */
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .product-card {
+        width: 100%;
+        min-height: 280px;
+    }
+
+    .product-image {
+        height: 240px;
+        font-size: 30px;
+    }
+
+    .product-name {
+        font-size: 20px;
+    }
+
+    .product-price {
+        font-size: 18px;
+    }
+
+    /* カテゴリタブ */
+    .category-tabs {
+        gap: 30px;
+        margin: 30px 0 15px 0;
+    }
+
+    .category-tab {
+        font-size: 20px;
+        width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    /* プロフィールセクション */
+    .profile-section {
+        padding: 0;
+        gap: 15px;
+    }
+
+    .profile-image-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-name {
+        font-size: 24px;
+    }
+
+    .edit-profile-btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    /* 商品グリッド */
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .product-card {
+        width: 100%;
+        min-height: 260px;
+    }
+
+    .product-image {
+        height: 220px;
+        font-size: 28px;
+    }
+
+    .product-name {
+        font-size: 18px;
+    }
+
+    .product-price {
+        font-size: 16px;
+    }
+
+    /* カテゴリタブ */
+    .category-tabs {
+        gap: 25px;
+        margin: 25px 0 12px 0;
+    }
+
+    .category-tab {
+        font-size: 18px;
+        width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    /* ユーザー情報セクション */
+    .user-info-section {
+        padding: 10px;
+        gap: 12px;
+    }
+
+    .profile-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .user-name {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* 商品グリッド */
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .product-card {
+        width: 100%;
+        min-height: 280px;
+    }
+
+    .product-image {
+        height: 240px;
+        font-size: 30px;
+    }
+
+    .product-name {
+        font-size: 20px;
+    }
+
+    .product-price {
+        font-size: 18px;
+    }
+
+    /* カテゴリタブ */
+    .category-tabs {
+        gap: 20px;
+        margin: 20px 0 10px 0;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category-tab {
+        font-size: 16px;
+        width: 150px;
+        text-align: center;
+    }
+}
+</style>
 @endsection

@@ -47,6 +47,38 @@ php artisan storage:link
 ```bash
 php artisan serve
 ```
+### Docker での起動
+Docker を利用する場合は以下の手順でコンテナを起動できます。
+
+```bash
+docker compose build app
+docker compose up app
+```
+
+初回起動時はコンテナ内で `.env` のコピー、`composer install`、`php artisan migrate` まで自動実行されます。起動後は `http://localhost:8000` にアクセスしてください。
+
+フロントエンド開発で Vite の開発サーバーも利用する場合は別ターミナルで次を実行します。
+
+```bash
+docker compose run --rm vite npm install
+docker compose up vite
+```
+
+Laravel コンテナで Artisan コマンドや Composer の更新を行いたい場合は以下のように `docker compose run` を利用できます。
+
+```bash
+docker compose run --rm app php artisan migrate
+WWWUSER=$(id -u) WWWGROUP=$(id -g) docker compose run --rm app composer install
+```
+
+権限の警告が出る環境では `WWWUSER` と `WWWGROUP` を指定して起動してください。
+
+```bash
+WWWUSER=$(id -u) WWWGROUP=$(id -g) docker compose up app
+```
+
+`RUN_MIGRATIONS=0` を指定するとコンテナ起動時の自動マイグレーションをスキップできます。
+
 
 ## 画面構成
 

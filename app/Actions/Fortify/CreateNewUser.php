@@ -38,14 +38,18 @@ class CreateNewUser implements CreatesNewUsers
             'password.required' => 'パスワードを入力してください',
             'password.min' => 'パスワードは8文字以上で入力してください',
             'password_confirmation.required' => 'パスワードと一致しません',
-            'password_confirmation.min' => 'パスワードと一致しません',
             'password_confirmation.same' => 'パスワードと一致しません',
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // メール認証を送信
+        $user->sendEmailVerificationNotification();
+
+        return $user;
     }
 }

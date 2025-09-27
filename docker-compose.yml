@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WWWUSER: ${WWWUSER:-1000}
+        WWWGROUP: ${WWWGROUP:-1000}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-1}
+
+  vite:
+    image: node:20-alpine
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    command: ["npm", "run", "dev", "--", "--host"]
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    depends_on:
+      - app
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port

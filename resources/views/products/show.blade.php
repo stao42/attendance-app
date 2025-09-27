@@ -11,7 +11,10 @@
                 @if(str_starts_with($product->image, 'http'))
                     <img src="{{ $product->image }}" alt="{{ $product->name }}" class="product-image">
                 @else
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-image">
+                    @php
+                        $filename = basename($product->image);
+                    @endphp
+                    <img src="{{ asset('images/products/' . $filename) }}" alt="{{ $product->name }}" class="product-image">
                 @endif
             @else
                 <div class="product-image-placeholder">商品画像</div>
@@ -27,8 +30,12 @@
             @if($product->brand)
                 <p class="product-brand">{{ $product->brand }}</p>
             @endif
-            <p class="product-price">{{ $product->formatted_price }}</p>
-            
+            <p class="product-price">
+                <span class="currency-symbol">¥</span>
+                <span class="price-amount">{{ number_format($product->price) }}</span>
+                <span class="tax-included">(税込)</span>
+            </p>
+
             <!-- アクションアイコン -->
             <div class="product-actions">
                 <div class="action-item">
@@ -37,22 +44,22 @@
                             <form action="{{ route('favorites.destroy', $product) }}" method="POST" class="favorite-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="favorite-btn favorited">❤️</button>
+                                <button type="submit" class="favorite-btn favorited">⭐</button>
                             </form>
                         @else
                             <form action="{{ route('favorites.store', $product) }}" method="POST" class="favorite-form">
                                 @csrf
-                                <button type="submit" class="favorite-btn">🤍</button>
+                                <button type="submit" class="favorite-btn">☆</button>
                             </form>
                         @endif
                     @else
-                        <span class="favorite-btn disabled">🤍</span>
+                        <span class="favorite-btn disabled">☆</span>
                     @endauth
-                    <span class="action-count">{{ $product->favorites->count() }}</span>
+                    <div class="action-count">{{ $product->favorites->count() }}</div>
                 </div>
                 <div class="action-item">
                     <img src="{{ asset('images/comment-icon.png') }}" alt="コメント" class="comment-icon">
-                    <span class="action-count">{{ $product->comments->count() }}</span>
+                    <div class="action-count">{{ $product->comments->count() }}</div>
                 </div>
             </div>
         </div>
@@ -70,35 +77,45 @@
             @endif
         @endif
 
-        <!-- 商品の情報 -->
-        <div class="product-details">
-            <h2 class="section-title">商品の情報</h2>
-            
-            <!-- カテゴリー -->
-            <div class="detail-item">
-                <h3 class="detail-label">カテゴリー</h3>
-                <div class="category-tags">
-                    <span class="category-tag">{{ $product->category->name }}</span>
-                </div>
-            </div>
-
-            <!-- 商品の状態 -->
-            <div class="detail-item">
-                <h3 class="detail-label">商品の状態</h3>
-                <p class="detail-value">{{ $product->condition_text }}</p>
-            </div>
-        </div>
-
         <!-- 商品説明 -->
         <div class="product-description">
             <h2 class="section-title">商品説明</h2>
             <div class="description-text">{{ $product->description }}</div>
         </div>
 
+        <!-- 商品の情報 -->
+        <div class="product-details">
+            <h2 class="section-title">商品の情報</h2>
+
+            <!-- カテゴリー -->
+            <div class="detail-item">
+                <div class="category-row">
+                    <h3 class="detail-label">カテゴリー</h3>
+                    <div class="category-tags">
+                        @if($product->categories && $product->categories->count() > 0)
+                            @foreach($product->categories as $category)
+                                <span class="category-tag">{{ $category->name }}</span>
+                            @endforeach
+                        @else
+                            <span class="category-tag">カテゴリーなし</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品の状態 -->
+            <div class="detail-item">
+                <div class="condition-row">
+                    <h3 class="detail-label">商品の状態</h3>
+                    <p class="detail-value">{{ $product->condition_text }}</p>
+                </div>
+            </div>
+        </div>
+
         <!-- コメントセクション -->
         <div class="comments-section">
             <h2 class="section-title">コメント({{ $product->comments->count() }})</h2>
-            
+
             <!-- コメント一覧 -->
             @foreach($product->comments as $comment)
                 <div class="comment-item">
@@ -112,18 +129,20 @@
 
             <!-- コメント投稿フォーム -->
             @auth
-                <form action="{{ route('comments.store') }}" method="POST" class="comment-form">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <div class="form-group">
-                        <label for="content" class="form-label">商品へのコメント</label>
-                        <textarea name="content" id="content" class="form-textarea" rows="4" placeholder="コメントを入力してください" required></textarea>
-                        @error('content')
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <button type="submit" class="btn btn-primary">コメントを送信する</button>
-                </form>
+                <div class="comment-form-section">
+                    <h3 class="comment-form-title">商品へのコメント</h3>
+                    <form action="{{ route('comments.store') }}" method="POST" class="comment-form">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <div class="comment-form-wrapper">
+                            <textarea name="content" id="content" class="comment-textarea" rows="6" placeholder="コメントを入力してください（255文字まで）" maxlength="255" required></textarea>
+                            @error('content')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="comment-submit-btn">コメントを送信する</button>
+                    </form>
+                </div>
             @endauth
         </div>
     </div>
@@ -133,7 +152,7 @@
 .product-detail-container {
     display: flex;
     gap: 40px;
-    margin-top: 20px;
+    margin-top: 60px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -196,6 +215,24 @@
     font-weight: 400;
     color: #000000;
     margin-bottom: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+}
+
+.currency-symbol {
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.price-amount {
+    font-size: 36px;
+    font-weight: 400;
+}
+
+.tax-included {
+    font-size: 20px;
+    font-weight: 400;
 }
 
 .product-actions {
@@ -206,8 +243,11 @@
 
 .action-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
+    min-width: 40px;
+    justify-content: center;
 }
 
 .favorite-form {
@@ -218,9 +258,15 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 40px;
     color: #ccc;
     transition: color 0.3s ease;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .favorite-btn.favorited {
@@ -240,6 +286,10 @@
     font-size: 18px;
     font-weight: 700;
     color: #000000;
+    text-align: center;
+    width: 100%;
+    line-height: 1;
+    margin-top: 2px;
 }
 
 .purchase-section {
@@ -290,7 +340,16 @@
     font-size: 24px;
     font-weight: 700;
     color: #000000;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.category-row,
+.condition-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .category-tags {
@@ -312,6 +371,7 @@
     font-size: 20px;
     font-weight: 400;
     color: #000000;
+    margin: 0;
 }
 
 .product-description {
@@ -364,29 +424,65 @@
     line-height: 1.5;
 }
 
-.comment-form {
-    margin-top: 30px;
+.comment-form-section {
+    margin-top: 50px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    font-size: 20px;
+.comment-form-title {
+    font-size: 28px;
     font-weight: 700;
     color: #000000;
-    margin-bottom: 10px;
+    margin-bottom: 50px;
 }
 
-.form-textarea {
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.comment-form-wrapper {
+    position: relative;
+}
+
+.comment-textarea {
     width: 100%;
+    height: 246px;
     padding: 15px;
-    border: 1px solid #D9D9D9;
+    border: 2px solid #5F5F5F;
+    border-radius: 5px;
+    background-color: rgba(217, 217, 217, 0);
+    font-size: 20px;
+    font-family: inherit;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.comment-textarea::placeholder {
+    color: #5F5F5F;
+}
+
+.comment-textarea:focus {
+    outline: none;
+    border-color: #000000;
+}
+
+
+.comment-submit-btn {
+    width: 100%;
+    height: 56px;
+    background-color: #FF5555;
+    color: #FFFFFF;
+    border: none;
     border-radius: 4px;
-    font-size: 18px;
-    resize: vertical;
+    font-size: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment-submit-btn:hover {
+    background-color: #E04444;
 }
 
 .error-message {
@@ -395,24 +491,151 @@
     margin-top: 5px;
 }
 
-.btn {
-    padding: 15px 30px;
-    font-size: 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
+/* レスポンシブデザイン対応 */
+@media (max-width: 1540px) {
+    .product-detail-container {
+        max-width: 1400px;
+        margin: 60px auto 0;
+        padding: 0 20px;
+    }
 }
 
-.btn-primary {
-    background-color: #FF5555;
-    color: #FFFFFF;
+@media (max-width: 850px) {
+    .product-detail-container {
+        flex-direction: column;
+        gap: 30px;
+        margin-top: 40px;
+        padding: 0 20px;
+    }
+
+    .product-image-section {
+        order: 1;
+    }
+
+    .product-info-section {
+        order: 2;
+    }
+
+    .product-image-wrapper {
+        height: 400px;
+    }
+
+    .product-title {
+        font-size: 36px;
+    }
+
+    .product-price {
+        font-size: 28px;
+    }
+
+    .favorite-btn {
+        font-size: 32px;
+    }
+
+    .comment-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .purchase-btn {
+        font-size: 24px;
+        height: 48px;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+
+    .detail-label {
+        font-size: 20px;
+    }
+
+    .category-tag {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .comment-form-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .comment-textarea {
+        height: 180px;
+        font-size: 18px;
+    }
+
+    .comment-submit-btn {
+        height: 48px;
+        font-size: 20px;
+    }
 }
 
-.btn-primary:hover {
-    background-color: #E04444;
+@media (max-width: 768px) {
+    .product-detail-container {
+        margin-top: 30px;
+        padding: 0 15px;
+        gap: 20px;
+    }
+
+    .product-image-wrapper {
+        height: 350px;
+    }
+
+    .product-title {
+        font-size: 28px;
+    }
+
+    .product-price {
+        font-size: 24px;
+    }
+
+    .favorite-btn {
+        font-size: 28px;
+    }
+
+    .comment-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .action-count {
+        font-size: 16px;
+    }
+
+    .purchase-btn {
+        font-size: 20px;
+        height: 44px;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .detail-label {
+        font-size: 18px;
+    }
+
+    .category-tag {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .comment-form-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .comment-textarea {
+        height: 150px;
+        font-size: 16px;
+    }
+
+    .comment-submit-btn {
+        height: 44px;
+        font-size: 18px;
+    }
 }
 </style>
+
 @endsection
