@@ -4,13 +4,10 @@
 
 @section('content')
 <div class="category-tabs">
-    <a href="{{ route('products.index') }}" class="category-tab {{ !request('tab') ? 'active' : '' }}">すべて</a>
+    <a href="{{ route('products.index', array_merge(request()->query(), ['tab' => 'recommended'])) }}" class="category-tab {{ !request('tab') || request('tab') === 'recommended' ? 'active' : '' }}">おすすめ</a>
     @if(auth()->check())
-        <a href="{{ route('products.index', ['tab' => 'mylist']) }}" class="category-tab {{ request('tab') === 'mylist' ? 'active' : '' }}">マイリスト</a>
+        <a href="{{ route('products.index', array_merge(request()->query(), ['tab' => 'mylist'])) }}" class="category-tab {{ request('tab') === 'mylist' ? 'active' : '' }}">マイリスト</a>
     @endif
-    @foreach($categories as $category)
-        <a href="#" class="category-tab">{{ $category->name }}</a>
-    @endforeach
 </div>
 
 <div class="products-grid">
@@ -22,7 +19,10 @@
                         @if(str_starts_with($product->image, 'http'))
                             <img src="{{ $product->image }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                         @else
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @php
+                                $filename = basename($product->image);
+                            @endphp
+                            <img src="{{ asset('images/products/' . $filename) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                         @endif
                     @else
                         商品画像
@@ -39,9 +39,17 @@
     @empty
         <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
             @if(request('tab') === 'mylist')
-                <p style="font-size: 24px; color: #5F5F5F;">マイリストに登録された商品はありません。</p>
+                @if(request('search'))
+                    <p style="font-size: 24px; color: #5F5F5F;">マイリストに「{{ request('search') }}」の商品はありません。</p>
+                @else
+                    <p style="font-size: 24px; color: #5F5F5F;">マイリストに登録された商品はありません。</p>
+                @endif
             @else
-                <p style="font-size: 24px; color: #5F5F5F;">商品が見つかりませんでした。</p>
+                @if(request('search'))
+                    <p style="font-size: 24px; color: #5F5F5F;">「{{ request('search') }}」の商品が見つかりませんでした。</p>
+                @else
+                    <p style="font-size: 24px; color: #5F5F5F;">商品が見つかりませんでした。</p>
+                @endif
             @endif
         </div>
     @endforelse

@@ -32,20 +32,56 @@ class ProfileController extends Controller
             'postal_code' => 'nullable|string|max:10',
             'address' => 'nullable|string|max:255',
             'building' => 'nullable|string|max:255',
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_image' => 'nullable|image|max:5120', // 5MBまで許可、ファイル形式は自動判定
         ]);
 
         $data = $request->only(['name', 'postal_code', 'address', 'building']);
 
         if ($request->hasFile('profile_image')) {
-            // 古い画像を削除
-            if ($user->profile_image) {
-                Storage::disk('public')->delete($user->profile_image);
+            try {
+                // 古い画像を削除
+                if ($user->profile_image) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+                
+                // プロフィール画像を保存（元のファイル名を保持）
+                $profileImage = $request->file('profile_image');
+                $originalName = $profileImage->getClientOriginalName();
+                $extension = $profileImage->getClientOriginalExtension();
+                
+                // ファイル名を安全な形式に変換
+                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+                $filename = $safeName . '_' . time() . '.' . $extension;
+                
+                $path = $profileImage->storeAs('profiles', $filename, 'public');
+                $data['profile_image'] = $path;
+                
+                // デバッグ情報
+                \Log::info('Profile image uploaded', [
+                    'user_id' => $user->id,
+                    'original_name' => $originalName,
+                    'filename' => $filename,
+                    'path' => $path,
+                    'file_exists' => Storage::disk('public')->exists($path)
+                ]);
+                
+            } catch (\Exception $e) {
+                \Log::error('Profile image upload failed', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+                return back()->withErrors(['profile_image' => '画像のアップロードに失敗しました。']);
             }
-            $data['profile_image'] = $request->file('profile_image')->store('profiles', 'public');
         }
 
         $user->update($data);
+        
+        // デバッグ情報
+        \Log::info('Profile updated', [
+            'user_id' => $user->id,
+            'profile_image' => $user->fresh()->profile_image,
+            'data' => $data
+        ]);
 
         // 初回ログインの場合、フラグを更新
         if ($user->is_first_login) {
