@@ -14,7 +14,7 @@ CoachTechのフリマアプリケーションです。ユーザーは商品の�
 
 ## 技術スタック
 - **フレームワーク**: Laravel 11
-- **データベース**: SQLite（開発環境）
+- **データベース**: MySQL 8.0
 - **フロントエンド**: HTML/CSS/JavaScript、Vite
 - **認証**: Laravel Fortify（メール認証含む）
 - **メール**: Mailhog（開発環境）、Laravel Mail
@@ -51,11 +51,22 @@ docker compose up -d
 # フロントエンド開発サーバー（ホットリロード）
 docker compose exec app npm run dev
 
+<<<<<<< HEAD
 # データベースリセット
 docker compose exec app php artisan migrate:fresh
 
 # ストレージリンク再作成
 docker compose exec app php artisan storage:link
+=======
+# データベースリセット（シーダー込み）
+docker compose exec app php artisan migrate:fresh --seed
+
+# ストレージリンク再作成
+docker compose exec app php artisan storage:link
+
+# MySQL接続確認
+docker compose exec mysql mysql -u root -ppassword -e "SHOW DATABASES;"
+>>>>>>> feature/fortify-implementation
 ```
 
 ### ダミーデータの登録
@@ -87,12 +98,25 @@ docker compose up -d
 **2. データベースエラー**
 ```bash
 # データベースをリセット
+<<<<<<< HEAD
 docker compose exec app php artisan migrate:fresh
 
 # または、データベースファイルを削除して再作成
 rm database/database.sqlite
 touch database/database.sqlite
 docker compose exec app php artisan migrate
+=======
+docker compose exec app php artisan migrate:fresh --seed
+
+# MySQLコンテナの状態確認
+docker compose ps mysql
+
+# MySQLコンテナの再起動
+docker compose restart mysql
+
+# MySQL接続テスト
+docker compose exec mysql mysql -u root -ppassword -e "SELECT 1;"
+>>>>>>> feature/fortify-implementation
 ```
 
 **3. ストレージリンクエラー**
@@ -151,8 +175,51 @@ chmod -R 755 bootstrap/cache/
 ### アクセスURL
 - **アプリケーション**: http://localhost:8000
 - **Mailhog（メール確認）**: http://localhost:8025
+<<<<<<< HEAD
+=======
+- **MySQL**: localhost:3306
+
+## Docker構成
+
+### サービス一覧
+- **app**: Laravelアプリケーション（PHP 8.2 + Laravel 11）
+- **mysql**: MySQL 8.0データベース
+- **vite**: フロントエンド開発サーバー（Node.js 20）
+- **mailhog**: メール開発サーバー
+
+### データ永続化
+- **MySQLデータ**: Dockerボリューム `coachtech_mysql_data`
+- **アプリケーションファイル**: ホストマシンと同期
+
+### 環境変数
+```bash
+# アプリケーション設定
+APP_ENV=local
+APP_DEBUG=true
+RUN_MIGRATIONS=1
+
+# データベース設定
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=coachtech
+DB_USERNAME=root
+DB_PASSWORD=password
+
+# メール設定
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+```
+>>>>>>> feature/fortify-implementation
 
 ## データベース構成
+
+### データベース情報
+- **種類**: MySQL 8.0
+- **データベース名**: coachtech
+- **ユーザー**: root / coachtech
+- **パスワード**: password
+- **ポート**: 3306
 
 ### テーブル一覧
 - `users` - ユーザー情報（プロフィール画像、住所含む）
@@ -161,6 +228,14 @@ chmod -R 755 bootstrap/cache/
 - `comments` - コメント情報（商品へのコメント）
 - `purchases` - 購入情報（決済方法、配送先、ステータス含む）
 - `favorites` - いいね情報（マイリスト機能）
+<<<<<<< HEAD
+=======
+- `migrations` - マイグレーション履歴
+- `cache` - キャッシュデータ
+- `sessions` - セッションデータ
+- `jobs` - ジョブキュー
+- `failed_jobs` - 失敗したジョブ
+>>>>>>> feature/fortify-implementation
 
 ## 開発者向け情報
 
@@ -172,8 +247,13 @@ docker compose exec app php artisan route:list
 # マイグレーション実行
 docker compose exec app php artisan migrate
 
+<<<<<<< HEAD
 # データベースリセット
 docker compose exec app php artisan migrate:fresh
+=======
+# データベースリセット（シーダー込み）
+docker compose exec app php artisan migrate:fresh --seed
+>>>>>>> feature/fortify-implementation
 
 # ストレージリンク作成
 docker compose exec app php artisan storage:link
@@ -181,6 +261,15 @@ docker compose exec app php artisan storage:link
 # キャッシュクリア
 docker compose exec app php artisan cache:clear
 docker compose exec app php artisan config:clear
+<<<<<<< HEAD
+=======
+
+# MySQLデータベース確認
+docker compose exec mysql mysql -u root -ppassword -e "USE coachtech; SHOW TABLES;"
+
+# MySQL接続テスト
+docker compose exec mysql mysql -u root -ppassword -e "SELECT COUNT(*) FROM products;"
+>>>>>>> feature/fortify-implementation
 ```
 
 ### テスト実行
@@ -211,6 +300,15 @@ docker compose exec app composer update
 
 # NPM依存関係更新
 docker compose exec app npm update
+<<<<<<< HEAD
+=======
+
+# MySQLデータベースバックアップ
+docker compose exec mysql mysqldump -u root -ppassword coachtech > backup.sql
+
+# MySQLデータベースリストア
+docker compose exec -i mysql mysql -u root -ppassword coachtech < backup.sql
+>>>>>>> feature/fortify-implementation
 ```
 
 ### 主要な機能実装
@@ -239,5 +337,22 @@ docker compose exec app npm update
 - 商品へのコメント投稿
 - ユーザープロフィール画像表示
 
+<<<<<<< HEAD
+=======
+## 更新履歴
+
+### v2.0.0 (2025-10-18)
+- **データベース**: SQLite → MySQL 8.0 に移行
+- **Docker構成**: MySQLサービスを追加
+- **開発環境**: より本格的な開発環境に改善
+- **README**: MySQL対応のドキュメント更新
+
+### v1.0.0 (2025-09-17)
+- **初回リリース**: 基本的なフリマアプリケーション機能
+- **認証**: Laravel Fortifyによる認証システム
+- **商品管理**: 出品・購入・いいね機能
+- **プロフィール**: 画像アップロード・住所管理
+
+>>>>>>> feature/fortify-implementation
 ## ライセンス
 このプロジェクトはCoachTechの学習用プロジェクトです。

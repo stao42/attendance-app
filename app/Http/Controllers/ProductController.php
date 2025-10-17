@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,13 +16,13 @@ class ProductController extends Controller
 
         // 検索機能
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // マイリスト表示
         if ($request->tab === 'mylist') {
             if (Auth::check()) {
-                $query->whereHas('favorites', function($q) {
+                $query->whereHas('favorites', function ($q) {
                     $q->where('user_id', Auth::id());
                 });
             } else {
@@ -51,6 +51,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
+
         return view('products.create', compact('categories'));
     }
 
@@ -78,11 +79,11 @@ class ProductController extends Controller
             if (app()->environment() !== 'testing') {
                 $filename = basename($data['image']);
                 $publicDir = public_path('images/products');
-                if (!file_exists($publicDir)) {
+                if (! file_exists($publicDir)) {
                     mkdir($publicDir, 0755, true);
                 }
-                if (file_exists(storage_path('app/public/' . $data['image']))) {
-                    copy(storage_path('app/public/' . $data['image']), $publicDir . '/' . $filename);
+                if (file_exists(storage_path('app/public/'.$data['image']))) {
+                    copy(storage_path('app/public/'.$data['image']), $publicDir.'/'.$filename);
                 }
             }
         }
@@ -99,6 +100,7 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $categories = Category::all();
+
         return view('products.edit', compact('product', 'categories'));
     }
 

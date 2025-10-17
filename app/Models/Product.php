@@ -37,7 +37,6 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
@@ -60,12 +59,12 @@ class Product extends Model
 
     public function getFormattedPriceAttribute(): string
     {
-        return '¥' . number_format($this->price) . ' (税込)';
+        return '¥'.number_format($this->price).' (税込)';
     }
 
     public function getConditionTextAttribute(): string
     {
-        return match($this->condition) {
+        return match ($this->condition) {
             'excellent' => '良好',
             'good' => '目立った傷や汚れなし',
             'fair' => 'やや傷や汚れあり',
