@@ -25,14 +25,9 @@ use Illuminate\Support\Facades\Storage;
         <div class="profile-image-section">
             <div class="profile-image-container">
                 @if($user->profile_image && Storage::disk('public')->exists($user->profile_image))
-                    @php
-                        $imageUrl = Storage::disk('public')->url($user->profile_image);
-                    @endphp
-                    <img src="{{ $imageUrl }}" alt="プロフィール画像" class="profile-image" onerror="this.style.display='none';">
-                    <!-- デバッグ情報 -->
-                    <!-- Profile image path: {{ $user->profile_image }} -->
-                    <!-- Storage URL: {{ $imageUrl }} -->
-                    <!-- File exists: {{ Storage::disk('public')->exists($user->profile_image) ? 'yes' : 'no' }} -->
+                    <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" class="profile-image" id="current-profile-image">
+                @else
+                    <div class="profile-image-placeholder">プロフィール画像</div>
                 @endif
             </div>
             <div class="image-select-container">
@@ -142,6 +137,19 @@ use Illuminate\Support\Facades\Storage;
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.profile-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #D9D9D9;
+    color: #666666;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 50%;
 }
 
 .image-select-container {
@@ -318,13 +326,16 @@ function previewProfileImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const img = input.parentElement.parentElement.querySelector('img');
-            if (img) {
-                img.src = e.target.result;
-            } else {
-                const container = input.parentElement.parentElement.querySelector('.profile-image-container');
-                container.innerHTML = '<img src="' + e.target.result + '" alt="プロフィール画像" class="profile-image">';
-            }
+            const container = input.parentElement.parentElement.querySelector('.profile-image-container');
+            // 既存の画像またはプレースホルダーを削除
+            container.innerHTML = '';
+            // 新しい画像を追加
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'プロフィール画像';
+            img.className = 'profile-image';
+            img.id = 'current-profile-image';
+            container.appendChild(img);
         };
         reader.readAsDataURL(input.files[0]);
     }

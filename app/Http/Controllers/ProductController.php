@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -42,7 +43,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['user', 'category', 'categories', 'comments.user', 'favorites']);
+        $product->load(['user', 'category', 'comments.user', 'favorites']);
 
         return view('products.show', compact('product'));
     }
@@ -61,29 +62,34 @@ class ProductController extends Controller
             'brand' => 'nullable|string|max:255',
             'price' => 'required|integer|min:1',
             'condition' => 'required|in:excellent,good,fair,poor',
-            'category_ids' => 'required|array|min:1',
-            'category_ids.*' => 'exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->only(['name', 'description', 'brand', 'price', 'condition']);
+        $data = $request->only(['name', 'description', 'brand', 'price', 'condition', 'category_id']);
         $data['user_id'] = auth()->id();
-        $data['category_id'] = $request->category_ids[0]; // 最初のカテゴリをメインカテゴリとして保存
 
         // デバッグ用ログ
-        \Log::info('Product creation data:', $data);
+        Log::info('Product creation data:', $data);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
-            // public/images/productsにもコピー
-            $filename = basename($data['image']);
-            copy(storage_path('app/public/' . $data['image']), public_path('images/products/' . $filename));
+            // public/images/productsにもコピー（本番環境のみ）
+            if (app()->environment() !== 'testing') {
+                $filename = basename($data['image']);
+                $publicDir = public_path('images/products');
+                if (!file_exists($publicDir)) {
+                    mkdir($publicDir, 0755, true);
+                }
+                if (file_exists(storage_path('app/public/' . $data['image']))) {
+                    copy(storage_path('app/public/' . $data['image']), $publicDir . '/' . $filename);
+                }
+            }
         }
 
         $product = Product::create($data);
-        
-        // 複数カテゴリを中間テーブルに保存
-        $product->categories()->attach($request->category_ids);
+
+        // カテゴリは既にcategory_idで保存済み
 
         return redirect()->route('products.index')->with('success', '商品を出品しました。');
     }

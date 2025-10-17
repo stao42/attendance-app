@@ -4,125 +4,240 @@
 CoachTechのフリマアプリケーションです。ユーザーは商品の出品、購入、いいね機能などを利用できます。
 
 ## 機能
-- ユーザー認証（ログイン・会員登録・ログアウト）
-- 商品一覧表示・検索
-- 商品詳細表示
-- 商品出品
-- 商品購入
-- いいね機能（マイリスト）
-- コメント機能
-- プロフィール管理
+- **ユーザー認証**: ログイン・会員登録・ログアウト・メール認証
+- **商品管理**: 商品一覧表示・検索・詳細表示・出品・編集・削除
+- **購入機能**: 商品購入・決済（カード/コンビニ払い）・購入履歴
+- **いいね機能**: マイリスト（お気に入り商品の管理）
+- **コメント機能**: 商品へのコメント投稿・表示
+- **プロフィール管理**: プロフィール編集・画像アップロード・住所管理
+- **メール機能**: 会員登録時のメール認証（開発環境ではMailhog使用）
 
 ## 技術スタック
-- **フレームワーク**: Laravel 12
-- **データベース**: SQLite
-- **フロントエンド**: HTML/CSS/JavaScript
-- **認証**: Laravel標準認証
+- **フレームワーク**: Laravel 11
+- **データベース**: SQLite（開発環境）
+- **フロントエンド**: HTML/CSS/JavaScript、Vite
+- **認証**: Laravel Fortify（メール認証含む）
+- **メール**: Mailhog（開発環境）、Laravel Mail
+- **コンテナ**: Docker Compose
+- **テスト**: PHPUnit
 
-## インストール・セットアップ
+## セットアップ
 
-### 1. 依存関係のインストール
+### 必要環境
+- Docker & Docker Compose
+- Git
+
+### 起動手順
+
 ```bash
-composer install
-```
+# 1. リポジトリをクローン
+git clone <repository-url>
+cd coachtech
 
-### 2. 環境設定
-```bash
+# 2. 環境設定
 cp .env.example .env
-php artisan key:generate
+
+# 3. 起動
+docker compose up -d
+
+# 4. アクセス
+# http://localhost:8000 (アプリ)
+# http://localhost:8025 (メール確認用)
 ```
 
-### 3. データベース設定
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 4. ストレージリンク作成
-```bash
-php artisan storage:link
-```
-
-### 5. サーバー起動
-```bash
-php artisan serve
-```
-### Docker での起動
-Docker を利用する場合は以下の手順でコンテナを起動できます。
+### 開発用コマンド
 
 ```bash
-docker compose build app
-docker compose up app
+# フロントエンド開発サーバー（ホットリロード）
+docker compose exec app npm run dev
+
+# データベースリセット
+docker compose exec app php artisan migrate:fresh
+
+# ストレージリンク再作成
+docker compose exec app php artisan storage:link
 ```
 
-初回起動時はコンテナ内で `.env` のコピー、`composer install`、`php artisan migrate` まで自動実行されます。起動後は `http://localhost:8000` にアクセスしてください。
+### ダミーデータの登録
+アプリケーションには以下のダミー商品が登録済みです：
+- 腕時計（¥15,000）
+- HDD（¥5,000）
+- 玉ねぎ3束（¥300）
+- 革靴（¥4,000）
+- ノートPC（¥45,000）
+- マイク（¥8,000）
+- ショルダーバッグ（¥3,500）
+- タンブラー（¥500）
+- コーヒーミル（¥4,000）
+- メイクセット（¥2,500）
 
-フロントエンド開発で Vite の開発サーバーも利用する場合は別ターミナルで次を実行します。
+### トラブルシューティング
 
+#### よくある問題と解決方法
+
+**1. コンテナが起動しない**
 ```bash
-docker compose run --rm vite npm install
-docker compose up vite
+# ポートが使用中の場合は、別のポートを使用
+docker compose down
+docker compose up -d
+
+# または、docker-compose.ymlでポートを変更
 ```
 
-Laravel コンテナで Artisan コマンドや Composer の更新を行いたい場合は以下のように `docker compose run` を利用できます。
-
+**2. データベースエラー**
 ```bash
-docker compose run --rm app php artisan migrate
-WWWUSER=$(id -u) WWWGROUP=$(id -g) docker compose run --rm app composer install
+# データベースをリセット
+docker compose exec app php artisan migrate:fresh
+
+# または、データベースファイルを削除して再作成
+rm database/database.sqlite
+touch database/database.sqlite
+docker compose exec app php artisan migrate
 ```
 
-権限の警告が出る環境では `WWWUSER` と `WWWGROUP` を指定して起動してください。
-
+**3. ストレージリンクエラー**
 ```bash
-WWWUSER=$(id -u) WWWGROUP=$(id -g) docker compose up app
+# ストレージリンクを再作成
+docker compose exec app php artisan storage:link
+
+# 権限エラーの場合
+docker compose exec app chmod -R 755 storage/
 ```
 
-`RUN_MIGRATIONS=0` を指定するとコンテナ起動時の自動マイグレーションをスキップできます。
+**4. メールが送信されない**
+```bash
+# Mailhogが起動しているか確認
+docker compose ps
+
+# Mailhogにアクセス
+# http://localhost:8025
+```
+
+**5. フロントエンドアセットが読み込めない**
+```bash
+# アセットを再ビルド
+docker compose exec app npm run build
+
+# 開発用サーバーを起動
+docker compose exec app npm run dev
+```
+
+**6. 権限エラー（macOS/Linux）**
+```bash
+# 権限を修正
+sudo chown -R $USER:$USER .
+chmod -R 755 storage/
+chmod -R 755 bootstrap/cache/
+```
 
 
 ## 画面構成
 
 | 画面ID | 画面名称 | パス | 説明 |
 |--------|----------|------|------|
-| PG01 | 商品一覧画面（トップ画面） | `/` | 全商品の一覧表示 |
-| PG02 | 商品一覧画面（トップ画面）_マイリスト | `/?tab=mylist` | いいねした商品の一覧 |
-| PG03 | 会員登録画面 | `/register` | 新規ユーザー登録 |
+| PG01 | 商品一覧画面（トップ画面） | `/` | 全商品の一覧表示・検索機能 |
+| PG02 | 商品一覧画面_マイリスト | `/?tab=mylist` | いいねした商品の一覧 |
+| PG03 | 会員登録画面 | `/register` | 新規ユーザー登録・メール認証 |
 | PG04 | ログイン画面 | `/login` | ユーザーログイン |
-| PG05 | 商品詳細画面 | `/item/{item_id}` | 商品の詳細情報 |
-| PG06 | 商品購入画面 | `/purchase/{item_id}` | 商品購入手続き |
-| PG07 | 送付先住所変更画面 | `/purchase/address/{item_id}` | 配送先住所変更 |
-| PG08 | 商品出品画面 | `/sell` | 商品出品 |
-| PG09 | プロフィール画面 | `/mypage` | ユーザープロフィール |
-| PG10 | プロフィール編集画面 | `/mypage/profile` | プロフィール編集 |
+| PG05 | 商品詳細画面 | `/item/{product}` | 商品の詳細情報・コメント表示 |
+| PG06 | 商品購入画面 | `/purchase/{product}` | 商品購入手続き・決済 |
+| PG07 | 送付先住所変更画面 | `/purchase/address/{product}` | 配送先住所変更 |
+| PG08 | 商品出品画面 | `/sell` | 商品出品・編集 |
+| PG09 | プロフィール画面 | `/mypage` | ユーザープロフィール・出品履歴 |
+| PG10 | プロフィール編集画面 | `/mypage/profile` | プロフィール編集・画像アップロード |
 | PG11 | プロフィール画面_購入した商品一覧 | `/mypage?page=buy` | 購入履歴 |
 | PG12 | プロフィール画面_出品した商品一覧 | `/mypage?page=sell` | 出品履歴 |
+
+### アクセスURL
+- **アプリケーション**: http://localhost:8000
+- **Mailhog（メール確認）**: http://localhost:8025
 
 ## データベース構成
 
 ### テーブル一覧
-- `users` - ユーザー情報
-- `products` - 商品情報
+- `users` - ユーザー情報（プロフィール画像、住所含む）
+- `products` - 商品情報（画像、価格、状態、カテゴリ含む）
 - `categories` - カテゴリ情報
-- `comments` - コメント情報
-- `purchases` - 購入情報
-- `favorites` - いいね情報
+- `comments` - コメント情報（商品へのコメント）
+- `purchases` - 購入情報（決済方法、配送先、ステータス含む）
+- `favorites` - いいね情報（マイリスト機能）
 
 ## 開発者向け情報
 
-### ルート一覧
+### コマンド一覧
 ```bash
-php artisan route:list
+# ルート一覧表示
+docker compose exec app php artisan route:list
+
+# マイグレーション実行
+docker compose exec app php artisan migrate
+
+# データベースリセット
+docker compose exec app php artisan migrate:fresh
+
+# ストレージリンク作成
+docker compose exec app php artisan storage:link
+
+# キャッシュクリア
+docker compose exec app php artisan cache:clear
+docker compose exec app php artisan config:clear
 ```
 
-### マイグレーション実行
+### テスト実行
 ```bash
-php artisan migrate
+# 全テスト実行
+docker compose exec app php artisan test
+
+# 特定のテスト実行
+docker compose exec app php artisan test --filter=RegistrationTest
+
+# コードスタイルチェック
+docker compose exec app ./vendor/bin/pint --test
+
+# コードスタイル修正
+docker compose exec app ./vendor/bin/pint
 ```
 
-### シーダー実行
+### 開発用コマンド
 ```bash
-php artisan db:seed
+# Tinker（対話式シェル）
+docker compose exec app php artisan tinker
+
+# ログ確認
+docker compose exec app tail -f storage/logs/laravel.log
+
+# Composer依存関係更新
+docker compose exec app composer update
+
+# NPM依存関係更新
+docker compose exec app npm update
 ```
+
+### 主要な機能実装
+
+#### 認証機能
+- Laravel Fortifyを使用した認証システム
+- メール認証機能（開発環境ではMailhog）
+- プロフィール画像アップロード機能
+
+#### 商品管理
+- 商品の出品・編集・削除
+- 画像アップロード機能
+- カテゴリ管理
+- 商品状態管理（良好、目立った傷や汚れなし、やや傷や汚れあり、状態が悪い）
+
+#### 購入機能
+- カード決済・コンビニ払い対応
+- 配送先住所管理
+- 購入履歴管理
+
+#### いいね機能
+- マイリスト機能
+- お気に入り商品の管理
+
+#### コメント機能
+- 商品へのコメント投稿
+- ユーザープロフィール画像表示
 
 ## ライセンス
 このプロジェクトはCoachTechの学習用プロジェクトです。
