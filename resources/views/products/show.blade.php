@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('title', $product->name . ' - CoachTech')
 
 @section('content')
@@ -120,7 +124,13 @@
             @foreach($product->comments as $comment)
                 <div class="comment-item">
                     <div class="comment-header">
-                        <div class="comment-avatar"></div>
+                        <div class="comment-avatar">
+                            @if($comment->user->profile_image && Storage::disk('public')->exists($comment->user->profile_image))
+                                <img src="{{ asset('storage/' . $comment->user->profile_image) }}" alt="プロフィール画像" class="comment-avatar-image">
+                            @else
+                                <div class="comment-avatar-placeholder"></div>
+                            @endif
+                        </div>
                         <span class="comment-author">{{ $comment->user->name }}</span>
                     </div>
                     <p class="comment-content">{{ $comment->content }}</p>
@@ -407,6 +417,24 @@
 .comment-avatar {
     width: 70px;
     height: 70px;
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comment-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.comment-avatar-placeholder {
+    width: 100%;
+    height: 100%;
     background-color: #D9D9D9;
     border-radius: 50%;
 }
