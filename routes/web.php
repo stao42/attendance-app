@@ -48,6 +48,9 @@ Route::get('/purchase/{product}', [PurchaseController::class, 'create'])->middle
 Route::post('/purchase/{product}', [PurchaseController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.store');
 Route::get('/purchase/address/{product}', [PurchaseController::class, 'editAddress'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.edit_address');
 Route::put('/purchase/address/{product}', [PurchaseController::class, 'updateAddress'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.update_address');
+Route::get('/purchase/{product}/payment/{purchase}', [PurchaseController::class, 'payment'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.payment');
+Route::get('/purchase/{product}/success/{purchase}', [PurchaseController::class, 'success'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.success');
+Route::get('/purchase/{product}/cancel/{purchase}', [PurchaseController::class, 'cancel'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.cancel');
 
 // いいねルート
 Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('favorites.store');
@@ -60,7 +63,7 @@ Route::get('/email/verify', function () {
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    
+
     // 初回ログインかどうかをチェック
     $user = $request->user();
     if ($user->is_first_login) {

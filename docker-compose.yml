@@ -16,6 +16,8 @@ services:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: ${APP_DEBUG:-true}
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-1}
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
 
   vite:
     image: node:20-alpine

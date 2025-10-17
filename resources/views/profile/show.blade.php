@@ -12,14 +12,9 @@ use Illuminate\Support\Facades\Storage;
     <div class="profile-section">
         <div class="profile-image-container">
             @if($user->profile_image && Storage::disk('public')->exists($user->profile_image))
-                @php
-                    $imageUrl = Storage::disk('public')->url($user->profile_image);
-                @endphp
-                <img src="{{ $imageUrl }}" alt="プロフィール画像" class="profile-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <!-- デバッグ情報 -->
-                <!-- Profile image path: {{ $user->profile_image }} -->
-                <!-- Storage URL: {{ $imageUrl }} -->
-                <!-- File exists: {{ Storage::disk('public')->exists($user->profile_image) ? 'yes' : 'no' }} -->
+                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" class="profile-image">
+            @else
+                <div class="profile-image-placeholder">プロフィール画像</div>
             @endif
         </div>
         <div class="profile-info">
@@ -140,6 +135,18 @@ use Illuminate\Support\Facades\Storage;
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.profile-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #D9D9D9;
+    color: #666666;
+    font-size: 14px;
+    text-align: center;
 }
 
 .profile-info {
