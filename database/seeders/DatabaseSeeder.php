@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,10 +13,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // カテゴリシーダーを実行
-        $this->call(CategorySeeder::class);
-        
-        // 商品シーダーを実行
-        $this->call(ProductSeeder::class);
+        // 管理者ユーザーの作成
+        User::create([
+            'name' => '管理者',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'is_admin' => true,
+        ]);
+
+        // テストユーザーの作成（オプション）
+        User::create([
+            'name' => 'テストユーザー',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+            'is_admin' => false,
+        ]);
     }
 }

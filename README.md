@@ -1,308 +1,370 @@
-# CoachTech フリマアプリケーション
+# CoachTech 勤怠管理アプリケーション
+
+Laravel + Docker + MySQL で構築された勤怠管理システムです。
 
 ## 概要
-CoachTechのフリマアプリケーションです。ユーザーは商品の出品、購入、いいね機能などを利用できます。
 
-## 機能
-- **ユーザー認証**: ログイン・会員登録・ログアウト・メール認証
-- **商品管理**: 商品一覧表示・検索・詳細表示・出品・編集・削除
-- **購入機能**: 商品購入・決済（カード/コンビニ払い）・購入履歴
-- **いいね機能**: マイリスト（お気に入り商品の管理）
-- **コメント機能**: 商品へのコメント投稿・表示
-- **プロフィール管理**: プロフィール編集・画像アップロード・住所管理
-- **メール機能**: 会員登録時のメール認証（開発環境ではMailhog使用）
+- **サービス名**: CoachTech 勤怠管理アプリケーション
+- **ターゲットユーザー**: 社会人全般（一般ユーザー・管理者）
+- **技術スタック**:
+  - PHP 8.2
+  - Laravel 12.0
+  - MySQL 8.0
+  - Docker / Docker Compose
 
-## 技術スタック
-- **フレームワーク**: Laravel 11
-- **データベース**: MySQL 8.0
-- **フロントエンド**: HTML/CSS/JavaScript、Vite
-- **認証**: Laravel Fortify（メール認証含む）
-- **メール**: Mailhog（開発環境）、Laravel Mail
-- **コンテナ**: Docker Compose
-- **テスト**: PHPUnit
+## 機能一覧
 
-## セットアップ
+### 一般ユーザー向け機能
 
-### 必要環境
-- Docker & Docker Compose
-- Git
+- **ユーザー認証**
+  - 会員登録（バリデーション付き）
+  - ログイン/ログアウト
+  - エラーメッセージ表示（日本語）
 
-### 起動手順
+- **打刻機能**
+  - 出勤打刻
+  - 退勤打刻
+  - 休憩開始/終了
+  - リアルタイムステータス表示（出勤中/休憩中/退勤済/勤務外）
+
+- **勤怠管理**
+  - 勤怠一覧表示（月別）
+  - 勤怠詳細表示
+  - 打刻修正申請
+
+- **申請管理**
+  - 修正申請一覧表示
+  - 申請ステータス確認
+
+### 管理者向け機能
+
+- **認証**
+  - 管理者専用ログイン
+  - 管理者権限チェック
+
+- **勤怠管理**
+  - 全スタッフの勤怠一覧
+  - 勤怠詳細表示・編集
+  - スタッフ別勤怠一覧
+  - CSVエクスポート機能
+
+- **スタッフ管理**
+  - スタッフ一覧表示
+
+- **申請承認**
+  - 打刻修正申請一覧
+  - 申請承認/却下
+  - 承認時のコメント機能
+
+## 開発環境のセットアップ
+
+### 前提条件
+
+- Docker Desktop がインストールされていること
+- Git がインストールされていること
+- 最低 4GB の空きメモリ推奨
+
+### セットアップ手順
+
+1. **リポジトリのクローン**
 
 ```bash
-# 1. リポジトリをクローン
 git clone <repository-url>
 cd coachtech
-
-# 2. 環境設定
-cp .env.example .env
-
-# 3. 起動
-docker compose up -d
-
-# 4. アクセス
-# http://localhost:8000 (アプリ)
-# http://localhost:8025 (メール確認用)
 ```
 
-### 開発用コマンド
+2. **`.env`ファイルの設定**
 
-```bash
-# フロントエンド開発サーバー（ホットリロード）
-docker compose exec app npm run dev
+既存の`.env`ファイルがある場合は、以下のデータベース設定を確認してください：
 
-# データベースリセット（シーダー込み）
-docker compose exec app php artisan migrate:fresh --seed
-
-# ストレージリンク再作成
-docker compose exec app php artisan storage:link
-
-# MySQL接続確認
-docker compose exec mysql mysql -u root -ppassword -e "SHOW DATABASES;"
-```
-
-### ダミーデータの登録
-アプリケーションには以下のダミー商品が登録済みです：
-- 腕時計（¥15,000）
-- HDD（¥5,000）
-- 玉ねぎ3束（¥300）
-- 革靴（¥4,000）
-- ノートPC（¥45,000）
-- マイク（¥8,000）
-- ショルダーバッグ（¥3,500）
-- タンブラー（¥500）
-- コーヒーミル（¥4,000）
-- メイクセット（¥2,500）
-
-### トラブルシューティング
-
-#### よくある問題と解決方法
-
-**1. コンテナが起動しない**
-```bash
-# ポートが使用中の場合は、別のポートを使用
-docker compose down
-docker compose up -d
-
-# または、docker-compose.ymlでポートを変更
-```
-
-**2. データベースエラー**
-```bash
-# データベースをリセット
-docker compose exec app php artisan migrate:fresh --seed
-
-# MySQLコンテナの状態確認
-docker compose ps mysql
-
-# MySQLコンテナの再起動
-docker compose restart mysql
-
-# MySQL接続テスト
-docker compose exec mysql mysql -u root -ppassword -e "SELECT 1;"
-```
-
-**3. ストレージリンクエラー**
-```bash
-# ストレージリンクを再作成
-docker compose exec app php artisan storage:link
-
-# 権限エラーの場合
-docker compose exec app chmod -R 755 storage/
-```
-
-**4. メールが送信されない**
-```bash
-# Mailhogが起動しているか確認
-docker compose ps
-
-# Mailhogにアクセス
-# http://localhost:8025
-```
-
-**5. フロントエンドアセットが読み込めない**
-```bash
-# アセットを再ビルド
-docker compose exec app npm run build
-
-# 開発用サーバーを起動
-docker compose exec app npm run dev
-```
-
-**6. 権限エラー（macOS/Linux）**
-```bash
-# 権限を修正
-sudo chown -R $USER:$USER .
-chmod -R 755 storage/
-chmod -R 755 bootstrap/cache/
-```
-
-
-## 画面構成
-
-| 画面ID | 画面名称 | パス | 説明 |
-|--------|----------|------|------|
-| PG01 | 商品一覧画面（トップ画面） | `/` | 全商品の一覧表示・検索機能 |
-| PG02 | 商品一覧画面_マイリスト | `/?tab=mylist` | いいねした商品の一覧 |
-| PG03 | 会員登録画面 | `/register` | 新規ユーザー登録・メール認証 |
-| PG04 | ログイン画面 | `/login` | ユーザーログイン |
-| PG05 | 商品詳細画面 | `/item/{product}` | 商品の詳細情報・コメント表示 |
-| PG06 | 商品購入画面 | `/purchase/{product}` | 商品購入手続き・決済 |
-| PG07 | 送付先住所変更画面 | `/purchase/address/{product}` | 配送先住所変更 |
-| PG08 | 商品出品画面 | `/sell` | 商品出品・編集 |
-| PG09 | プロフィール画面 | `/mypage` | ユーザープロフィール・出品履歴 |
-| PG10 | プロフィール編集画面 | `/mypage/profile` | プロフィール編集・画像アップロード |
-| PG11 | プロフィール画面_購入した商品一覧 | `/mypage?page=buy` | 購入履歴 |
-| PG12 | プロフィール画面_出品した商品一覧 | `/mypage?page=sell` | 出品履歴 |
-
-### アクセスURL
-- **アプリケーション**: http://localhost:8000
-- **Mailhog（メール確認）**: http://localhost:8025
-- **MySQL**: localhost:3306
-
-## Docker構成
-
-### サービス一覧
-- **app**: Laravelアプリケーション（PHP 8.2 + Laravel 11）
-- **mysql**: MySQL 8.0データベース
-- **vite**: フロントエンド開発サーバー（Node.js 20）
-- **mailhog**: メール開発サーバー
-
-### データ永続化
-- **MySQLデータ**: Dockerボリューム `coachtech_mysql_data`
-- **アプリケーションファイル**: ホストマシンと同期
-
-### 環境変数
-```bash
-# アプリケーション設定
-APP_ENV=local
-APP_DEBUG=true
-RUN_MIGRATIONS=1
-
-# データベース設定
+```env
 DB_CONNECTION=mysql
-DB_HOST=mysql
+DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=coachtech
 DB_USERNAME=root
-DB_PASSWORD=password
-
-# メール設定
-MAIL_HOST=mailhog
-MAIL_PORT=1025
+DB_PASSWORD=root
 ```
+
+3. **Dockerコンテナのビルドと起動**
+
+```bash
+docker compose up -d --build
+```
+
+初回起動時はビルドに時間がかかります。
+
+4. **Composerパッケージのインストール**
+
+```bash
+docker compose exec app composer install
+```
+
+5. **アプリケーションキーの生成**
+
+```bash
+docker compose exec app php artisan key:generate
+```
+
+6. **データベースのマイグレーション**
+
+```bash
+docker compose exec app php artisan migrate
+```
+
+7. **シーダーの実行（テストデータ作成）**
+
+```bash
+docker compose exec app php artisan db:seed
+```
+
+シーダー実行後、以下のユーザーでログインできます：
+
+- **管理者ユーザー**
+  - Email: `admin@example.com`
+  - Password: `password`
+  - 権限: 管理者（すべての機能にアクセス可能）
+
+- **テストユーザー**
+  - Email: `test@example.com`
+  - Password: `password`
+  - 権限: 一般ユーザー
+
+### アクセス
+
+- **アプリケーション**: http://localhost:8000
+- **phpMyAdmin**: http://localhost:8080
+
+## 開発
+
+### コンテナ内でのコマンド実行
+
+```bash
+# Composer
+docker compose exec app composer <command>
+
+# Artisan
+docker compose exec app php artisan <command>
+
+# npm
+docker compose exec app npm <command>
+```
+
+### よく使うコマンド
+
+```bash
+# コンテナの起動
+docker compose up -d
+
+# コンテナの停止
+docker compose down
+
+# コンテナの再起動
+docker compose restart
+
+# ログの確認
+docker compose logs -f app
+
+# データベースのリセット
+docker compose exec app php artisan migrate:fresh --seed
+
+# キャッシュのクリア
+docker compose exec app php artisan cache:clear
+docker compose exec app php artisan config:clear
+docker compose exec app php artisan view:clear
+```
+
+## バリデーションルール
+
+### 会員登録
+
+- **お名前**: 必須、文字列、最大255文字
+- **メールアドレス**: 必須、有効なメール形式、最大255文字、一意性
+- **パスワード**: 必須、最小8文字
+- **パスワード確認**: パスワードと一致すること
+
+### ログイン
+
+- **メールアドレス**: 必須、有効なメール形式
+- **パスワード**: 必須
+
+### エラーメッセージ
+
+エラーメッセージは日本語で表示されます：
+
+- **会員登録**
+  - `お名前を入力してください`
+  - `メールアドレスを入力してください`
+  - `メールアドレスの形式が正しくありません`
+  - `このメールアドレスは既に登録されています`
+  - `パスワードを入力してください`
+  - `パスワードは8文字以上で入力してください`
+  - `パスワードと一致しません`
+
+- **ログイン**
+  - `メールアドレスを入力してください`
+  - `パスワードを入力してください`
+  - `ログイン情報が登録されていません`
 
 ## データベース構成
 
-### データベース情報
-- **種類**: MySQL 8.0
-- **データベース名**: coachtech
-- **ユーザー**: root / coachtech
-- **パスワード**: password
-- **ポート**: 3306
-
 ### テーブル一覧
-- `users` - ユーザー情報（プロフィール画像、住所含む）
-- `products` - 商品情報（画像、価格、状態、カテゴリ含む）
-- `categories` - カテゴリ情報
-- `comments` - コメント情報（商品へのコメント）
-- `purchases` - 購入情報（決済方法、配送先、ステータス含む）
-- `favorites` - いいね情報（マイリスト機能）
-- `migrations` - マイグレーション履歴
-- `cache` - キャッシュデータ
-- `sessions` - セッションデータ
-- `jobs` - ジョブキュー
-- `failed_jobs` - 失敗したジョブ
 
-## 開発者向け情報
+- `users`: ユーザー情報（管理者フラグ含む）
+- `attendance_records`: 勤怠記録
+- `breaks`: 休憩記録
+- `stamp_correction_requests`: 打刻修正申請
 
-### コマンド一覧
+### 主要なリレーション
+
+- `User` → `AttendanceRecord` (1対多)
+- `AttendanceRecord` → `BreakRecord` (1対多)
+- `AttendanceRecord` → `StampCorrectionRequest` (1対多)
+- `User` → `StampCorrectionRequest` (1対多)
+
+## プロジェクト構成
+
+```
+coachtech/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Auth/
+│   │   │   │   ├── LoginController.php       # 一般ユーザーログイン
+│   │   │   │   ├── RegisterController.php    # 会員登録
+│   │   │   │   └── Admin/
+│   │   │   │       └── AdminLoginController.php  # 管理者ログイン
+│   │   │   ├── AttendanceController.php      # 勤怠管理
+│   │   │   ├── AdminController.php           # 管理者機能
+│   │   │   └── StampCorrectionRequestController.php  # 修正申請
+│   │   └── Requests/
+│   │       └── Auth/
+│   │           ├── LoginRequest.php          # ログインバリデーション
+│   │           └── RegisterRequest.php       # 登録バリデーション
+│   ├── Models/
+│   │   ├── User.php                          # ユーザーモデル
+│   │   ├── AttendanceRecord.php              # 勤怠記録モデル
+│   │   ├── BreakRecord.php                   # 休憩記録モデル
+│   │   └── StampCorrectionRequest.php        # 修正申請モデル
+│   └── Providers/
+│       └── AppServiceProvider.php
+├── database/
+│   ├── migrations/
+│   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   ├── 2025_10_31_152839_add_is_admin_to_users_table.php
+│   │   ├── 2025_10_31_152840_create_attendance_records_table.php
+│   │   ├── 2025_10_31_160836_create_breaks_table.php
+│   │   └── 2025_10_31_160836_create_stamp_correction_requests_table.php
+│   └── seeders/
+│       └── DatabaseSeeder.php
+├── resources/
+│   └── views/
+│       ├── layouts/
+│       │   └── app.blade.php                 # メインレイアウト
+│       ├── auth/
+│       │   ├── login.blade.php               # ログイン画面
+│       │   └── register.blade.php            # 会員登録画面
+│       ├── dashboard.blade.php               # ダッシュボード（非使用）
+│       ├── attendance/
+│       │   ├── index.blade.php               # 打刻画面
+│       │   ├── list.blade.php                # 勤怠一覧
+│       │   └── detail.blade.php              # 勤怠詳細
+│       ├── admin/
+│       │   ├── index.blade.php               # 管理者ダッシュボード
+│       │   ├── users.blade.php               # スタッフ一覧
+│       │   ├── attendance_status.blade.php   # 勤怠状況
+│       │   └── attendance_detail.blade.php   # 勤怠詳細（管理者）
+│       └── stamp_correction_request/
+│           ├── list.blade.php                # 申請一覧
+│           ├── admin_list.blade.php          # 申請一覧（管理者）
+│           └── approve.blade.php             # 承認画面
+├── routes/
+│   └── web.php                               # ルート定義
+├── public/
+│   └── images/
+│       └── coachtech-logo.svg                # ロゴ
+├── docker-compose.yml                        # Docker Compose設定
+├── Dockerfile                                # Dockerイメージ定義
+└── README.md
+```
+
+## 主要なルート
+
+### 一般ユーザー
+
+- `GET /login` - ログイン画面
+- `POST /login` - ログイン処理
+- `GET /register` - 会員登録画面
+- `POST /register` - 会員登録処理
+- `GET /attendance` - 打刻画面
+- `POST /attendance/clock-in` - 出勤打刻
+- `POST /attendance/clock-out` - 退勤打刻
+- `POST /attendance/break-start` - 休憩開始
+- `POST /attendance/break-end` - 休憩終了
+- `GET /attendance/list` - 勤怠一覧
+- `GET /attendance/detail/{id}` - 勤怠詳細
+- `POST /attendance/detail/{id}/request-correction` - 修正申請
+- `GET /stamp_correction_request/list` - 申請一覧
+
+### 管理者
+
+- `GET /admin/login` - 管理者ログイン画面
+- `POST /admin/login` - 管理者ログイン処理
+- `GET /admin/attendance/list` - 勤怠一覧（管理者）
+- `GET /admin/attendance/{id}` - 勤怠詳細（管理者）
+- `POST /admin/attendance/{id}/update` - 勤怠更新
+- `GET /admin/staff/list` - スタッフ一覧
+- `GET /admin/attendance/staff/{id}` - スタッフ別勤怠一覧
+- `GET /admin/attendance/staff/{id}/csv` - CSVエクスポート
+- `GET /admin/stamp_correction_request/list` - 申請一覧（管理者）
+- `GET /admin/stamp_correction_request/approve/{id}` - 承認画面
+- `POST /admin/stamp_correction_request/approve/{id}` - 承認処理
+
+## デザイン
+
+- レスポンシブデザイン対応
+- Figmaデザインに準拠したUI
+- モダンなカラーパレットとタイポグラフィ
+
+## トラブルシューティング
+
+### コンテナが起動しない
+
 ```bash
-# ルート一覧表示
-docker compose exec app php artisan route:list
+# コンテナのログを確認
+docker compose logs app
 
-# マイグレーション実行
-docker compose exec app php artisan migrate
+# コンテナを再ビルド
+docker compose down
+docker compose up -d --build
+```
 
-# データベースリセット（シーダー込み）
-docker compose exec app php artisan migrate:fresh --seed
+### データベース接続エラー
 
-# ストレージリンク作成
-docker compose exec app php artisan storage:link
+`.env`ファイルのデータベース設定を確認してください：
 
-# キャッシュクリア
+```env
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_DATABASE=coachtech
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+### パーミッションエラー
+
+```bash
+docker compose exec app chmod -R 775 storage bootstrap/cache
+```
+
+### キャッシュの問題
+
+```bash
 docker compose exec app php artisan cache:clear
 docker compose exec app php artisan config:clear
-
-# MySQLデータベース確認
-docker compose exec mysql mysql -u root -ppassword -e "USE coachtech; SHOW TABLES;"
-
-# MySQL接続テスト
-docker compose exec mysql mysql -u root -ppassword -e "SELECT COUNT(*) FROM products;"
+docker compose exec app php artisan view:clear
 ```
-
-### テスト実行
-```bash
-# 全テスト実行
-docker compose exec app php artisan test
-
-# 特定のテスト実行
-docker compose exec app php artisan test --filter=RegistrationTest
-
-# コードスタイルチェック
-docker compose exec app ./vendor/bin/pint --test
-
-# コードスタイル修正
-docker compose exec app ./vendor/bin/pint
-```
-
-### 開発用コマンド
-```bash
-# Tinker（対話式シェル）
-docker compose exec app php artisan tinker
-
-# ログ確認
-docker compose exec app tail -f storage/logs/laravel.log
-
-# Composer依存関係更新
-docker compose exec app composer update
-
-# NPM依存関係更新
-docker compose exec app npm update
-
-# MySQLデータベースバックアップ
-docker compose exec mysql mysqldump -u root -ppassword coachtech > backup.sql
-
-# MySQLデータベースリストア
-docker compose exec -i mysql mysql -u root -ppassword coachtech < backup.sql
-```
-
-### 主要な機能実装
-
-#### 認証機能
-- Laravel Fortifyを使用した認証システム
-- メール認証機能（開発環境ではMailhog）
-- プロフィール画像アップロード機能
-
-#### 商品管理
-- 商品の出品・編集・削除
-- 画像アップロード機能
-- カテゴリ管理
-- 商品状態管理（良好、目立った傷や汚れなし、やや傷や汚れあり、状態が悪い）
-
-#### 購入機能
-- カード決済・コンビニ払い対応
-- 配送先住所管理
-- 購入履歴管理
-
-#### いいね機能
-- マイリスト機能
-- お気に入り商品の管理
-
-#### コメント機能
-- 商品へのコメント投稿
-- ユーザープロフィール画像表示
-
 
 ## ライセンス
-このプロジェクトはCoachTechの学習用プロジェクトです。
+
+Coachtechの模擬案件として作成。

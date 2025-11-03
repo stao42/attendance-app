@@ -1,86 +1,79 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProfileSetupController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\Admin\AdminLoginController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StampCorrectionRequestController;
 
-// カスタム認証ルート
+// トップページ（ログイン済みの場合は勤怠登録画面へリダイレクト）
+Route::get('/', function () {
+    if (Auth::check()) {
+        if (Auth::user()->is_admin) {
+            return redirect('/admin/attendance/list');
+        }
+        return redirect('/attendance');
+    }
+    return redirect('/login');
+});
+
+// 一般ユーザー向け認証
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
 
-// Fortify認証ルート（自動で登録される）
-// 既存の手動認証ルートはコメントアウト
-// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-// Route::post('/login', [AuthController::class, 'login']);
-// Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-// Route::post('/register', [AuthController::class, 'register']);
-// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// 管理者向け認証
+Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminLoginController::class, 'login']);
+Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
-// 商品ルート（要件に合わせてパスを修正）
-Route::get('/', [ProductController::class, 'index'])->middleware(['verified', 'check.first.login'])->name('products.index');
-Route::get('/item/{product}', [ProductController::class, 'show'])->middleware('verified')->name('products.show');
-Route::get('/sell', [ProductController::class, 'create'])->middleware(['auth', 'verified', 'check.first.login'])->name('products.create');
-Route::post('/products', [ProductController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('products.store');
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->middleware(['auth', 'verified', 'check.first.login'])->name('products.edit');
-Route::put('/products/{product}', [ProductController::class, 'update'])->middleware(['auth', 'verified', 'check.first.login'])->name('products.update');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->middleware(['auth', 'verified', 'check.first.login'])->name('products.destroy');
+// 認証が必要なルート（一般ユーザー）
+Route::middleware(['auth'])->group(function () {
+    // 勤怠登録画面（PG03）
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 
-// プロフィールルート（要件に合わせてパスを修正）
-Route::get('/mypage', [ProfileController::class, 'show'])->middleware(['auth', 'verified', 'check.first.login'])->name('profile.show');
-Route::get('/mypage/profile', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('profile.edit');
-Route::put('/profile', [ProfileController::class, 'update'])->middleware(['auth', 'verified'])->name('profile.update');
+    // 打刻機能
+    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
+    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
+    Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])->name('attendance.break-start');
+    Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])->name('attendance.break-end');
 
-// コメントルート
-Route::post('/comments', [CommentController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('comments.store');
+    // 勤怠一覧画面（PG04）
+    Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.list');
 
-// 購入ルート（要件に合わせてパスを修正）
-Route::get('/purchase/{product}', [PurchaseController::class, 'create'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.create');
-Route::post('/purchase/{product}', [PurchaseController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.store');
-Route::get('/purchase/address/{product}', [PurchaseController::class, 'editAddress'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.edit_address');
-Route::put('/purchase/address/{product}', [PurchaseController::class, 'updateAddress'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.update_address');
-Route::get('/purchase/{product}/payment/{purchase}', [PurchaseController::class, 'payment'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.payment');
-Route::get('/purchase/{product}/success/{purchase}', [PurchaseController::class, 'success'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.success');
-Route::get('/purchase/{product}/cancel/{purchase}', [PurchaseController::class, 'cancel'])->middleware(['auth', 'verified', 'check.first.login'])->name('purchases.cancel');
+    // 勤怠詳細画面（PG05）
+    Route::get('/attendance/detail/{id}', [AttendanceController::class, 'detail'])->name('attendance.detail');
+    Route::post('/attendance/detail/{id}/request-correction', [AttendanceController::class, 'requestCorrection'])->name('attendance.request-correction');
 
-// いいねルート
-Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->middleware(['auth', 'verified', 'check.first.login'])->name('favorites.store');
-Route::delete('/favorites/{product}', [FavoriteController::class, 'destroy'])->middleware(['auth', 'verified', 'check.first.login'])->name('favorites.destroy');
+    // 申請一覧画面（PG06）
+    Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'list'])->name('stamp_correction_request.list');
+});
 
-// メール認証関連ルート
-Route::get('/email/verify', function () {
-    return view('auth.email-verification-notice');
-})->middleware(['auth'])->name('verification.notice');
+// 認証が必要なルート（管理者）
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+        // 勤怠一覧画面（PG08）
+        Route::get('/attendance/list', [AdminController::class, 'attendanceList'])->name('attendance.list');
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
+        // 勤怠詳細画面（PG09）
+        Route::get('/attendance/{id}', [AdminController::class, 'attendanceDetail'])->name('attendance.detail');
+        Route::post('/attendance/{id}/update', [AdminController::class, 'updateAttendance'])->name('attendance.update');
 
-    // 初回ログインかどうかをチェック
-    $user = $request->user();
-    if ($user->is_first_login) {
-        return redirect()->route('profile.setup');
-    } else {
-        return redirect()->route('products.index');
-    }
-})->middleware(['auth', 'signed'])->name('verification.verify');
+        // スタッフ一覧画面（PG10）
+        Route::get('/staff/list', [AdminController::class, 'staffList'])->name('staff.list');
 
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+        // スタッフ別勤怠一覧画面（PG11）
+        Route::get('/attendance/staff/{id}', [AdminController::class, 'staffAttendanceList'])->name('attendance.staff');
+        Route::get('/attendance/staff/{id}/csv', [AdminController::class, 'staffAttendanceCsv'])->name('attendance.staff.csv');
 
-// ダッシュボードルート
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+        // 申請一覧画面（PG12）
+        Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'adminList'])->name('stamp_correction_request.list');
 
-// プロフィール設定ルート
-Route::get('/profile/setup', [ProfileSetupController::class, 'show'])->middleware(['auth', 'verified'])->name('profile.setup');
-Route::post('/profile/setup', [ProfileSetupController::class, 'store'])->middleware(['auth', 'verified'])->name('profile.setup.store');
+        // 修正申請承認画面（PG13）
+        Route::get('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'approveDetail'])->name('stamp_correction_request.approve.detail');
+        Route::post('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'approve'])->name('stamp_correction_request.approve');
+});

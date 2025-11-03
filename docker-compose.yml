@@ -3,57 +3,53 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        WWWUSER: ${WWWUSER:-1000}
-        WWWGROUP: ${WWWGROUP:-1000}
-    ports:
-      - "${APP_PORT:-8000}:8000"
+    container_name: coachtech_app
     volumes:
-      - .:/var/www/html
+      - ./:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - coachtech_network
     environment:
-      APP_ENV: ${APP_ENV:-local}
-      APP_DEBUG: ${APP_DEBUG:-true}
-      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-1}
-      MAIL_HOST: mailhog
-      MAIL_PORT: 1025
-      DB_CONNECTION: mysql
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_DATABASE: coachtech
-      DB_USERNAME: root
-      DB_PASSWORD: password
-    depends_on:
-      - mysql
+      - DB_HOST=db
+      - DB_DATABASE=coachtech
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_CONNECTION=mysql
+    command: php artisan serve --host=0.0.0.0 --port=8000
 
-  vite:
-    image: node:20-alpine
-    working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-    command: ["npm", "run", "dev", "--", "--host"]
-    ports:
-      - "${VITE_PORT:-5173}:5173"
-    depends_on:
-      - app
-
-  mysql:
+  db:
     image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: coachtech
-      MYSQL_USER: coachtech
-      MYSQL_PASSWORD: password
+    container_name: coachtech_db
     ports:
       - "3306:3306"
+    environment:
+      MYSQL_DATABASE: coachtech
+      MYSQL_ROOT_PASSWORD: root
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - db_data:/var/lib/mysql
+    networks:
+      - coachtech_network
 
-  mailhog:
-    image: mailhog/mailhog:latest
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: coachtech_phpmyadmin
     ports:
-      - "1025:1025"  # SMTP port
-      - "8025:8025"  # Web UI port
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - coachtech_network
+
+networks:
+  coachtech_network:
+    driver: bridge
 
 volumes:
-  mysql_data:
+  db_data:

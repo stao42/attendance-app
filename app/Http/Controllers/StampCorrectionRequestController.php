@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\StampCorrectionRequest;
+use App\Models\AttendanceRecord;
+use App\Models\BreakRecord;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
+class StampCorrectionRequestController extends Controller
+{
+    /**
+     * 申請一覧画面（PG06）を表示（一般ユーザー）
+     */
+    public function list(Request $request)
+    {
+        $user = Auth::user();
+
+        $pendingRequests = StampCorrectionRequest::with(['attendanceRecord', 'attendanceRecord.user'])
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $approvedRequests = StampCorrectionRequest::with(['attendanceRecord', 'attendanceRecord.user', 'approver'])
+            ->where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->orderBy('approved_at', 'desc')
+            ->get();
+
+        return view('stamp_correction_request.list', compact('pendingRequests', 'approvedRequests'));
+    }
+
+    /**
+     * 申請一覧画面（PG12）を表示（管理者）
+     */
+    public function adminList(Request $request)
+    {
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            abort(403, 'このページにアクセスする権限がありません。');
+        }
+
+        $pendingRequests = StampCorrectionRequest::with(['attendanceRecord', 'attendanceRecord.user', 'user'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $approvedRequests = StampCorrectionRequest::with(['attendanceRecord', 'attendanceRecord.user', 'user', 'approver'])
+            ->where('status', 'approved')
+            ->orderBy('approved_at', 'desc')
+            ->get();
+
+        return view('stamp_correction_request.admin_list', compact('pendingRequests', 'approvedRequests'));
+    }
+
+    /**
+     * 修正申請承認画面（PG13）を表示
+     */
+    public function approveDetail($id)
+    {
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            abort(403, 'このページにアクセスする権限がありません。');
+        }
+
+        $request = StampCorrectionRequest::with(['attendanceRecord', 'attendanceRecord.user', 'attendanceRecord.breaks', 'user'])
+            ->findOrFail($id);
+
+        return view('stamp_correction_request.approve', compact('request'));
+    }
+
+    /**
+     * 修正申請を承認
+     */
+    public function approve(Request $request, $id)
+    {
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            abort(403, 'このページにアクセスする権限がありません。');
+        }
+
+        $correctionRequest = StampCorrectionRequest::with('attendanceRecord')
+            ->findOrFail($id);
+
+        if ($correctionRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'この申請は既に処理されています。');
+        }
+
+        $attendanceRecord = $correctionRequest->attendanceRecord;
+
+        // 勤怠記録を更新
+        $attendanceRecord->update([
+            'clock_in' => $correctionRequest->requested_clock_in,
+            'clock_out' => $correctionRequest->requested_clock_out,
+            'notes' => $correctionRequest->requested_notes,
+        ]);
+
+        // 修正申請を承認済みに更新
+        $correctionRequest->update([
+            'status' => 'approved',
+            'approved_by' => Auth::id(),
+            'approved_at' => Carbon::now(),
+        ]);
+
+        return redirect()->route('admin.stamp_correction_request.list')->with('success', '修正申請を承認しました。');
+    }
+}

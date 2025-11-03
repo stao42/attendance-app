@@ -1,202 +1,248 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>会員登録 - CoachTech</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@extends('layouts.app')
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #FFFFFF;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+@section('title', '会員登録')
 
-        .header {
-            background-color: #000000;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            padding: 0 40px;
-        }
+@section('styles')
+<style>
+    body {
+        background-color: #FFFFFF;
+    }
 
-        .logo {
-            height: 36px;
-            width: auto;
-        }
+    /* コンテナのエラーメッセージを非表示（各フィールドの下に表示するため） */
+    .container .alert {
+        display: none;
+    }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            background-color: #F5F5F5;
-        }
+    .auth-page {
+        min-height: 100vh;
+        background-color: #FFFFFF;
+        padding-top: 80px;
+        padding-bottom: 40px;
+    }
 
-        .auth-container {
-            width: 680px;
-            background-color: #FFFFFF;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 60px 40px;
-        }
+    .auth-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        background-color: #000000;
+        z-index: 1000;
+    }
 
+    .auth-header-content {
+        max-width: 1512px;
+        width: 100%;
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 25px;
+        position: relative;
+    }
+
+    .auth-header-logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-header-logo img {
+        width: 370px;
+        height: 36px;
+        max-width: 100%;
+    }
+
+    .auth-container {
+        max-width: 1512px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 81px 25px 40px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .auth-form-wrapper {
+        width: 100%;
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .auth-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 36px;
+        line-height: 1.21;
+        color: #000000;
+        margin-bottom: 45px;
+    }
+
+    .auth-form-group {
+        margin-bottom: 28px;
+    }
+
+    .auth-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 1.21;
+        color: #000000;
+        margin-bottom: 10px;
+    }
+
+    .auth-input {
+        width: 100%;
+        height: 45px;
+        padding: 0 16px;
+        border: 1px solid #000000;
+        border-radius: 4px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        color: #000000;
+        background-color: #FFFFFF;
+        box-sizing: border-box;
+    }
+
+    .auth-input:focus {
+        outline: none;
+        border-color: #000000;
+    }
+
+    .auth-button {
+        width: 100%;
+        height: 60px;
+        background-color: #000000;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 5px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 26px;
+        line-height: 1.21;
+        cursor: pointer;
+        margin-top: 70px;
+        margin-bottom: 17px;
+    }
+
+    .auth-button:hover {
+        opacity: 0.9;
+    }
+
+    .auth-link {
+        display: block;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 1.21;
+        color: #0073CC;
+        text-decoration: none;
+        margin-top: 17px;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
+    .auth-error {
+        color: #DC3545;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    @media (max-width: 1540px) {
+        .auth-header-logo img {
+            width: min(370px, 25vw);
+        }
+    }
+
+    @media (max-width: 768px) {
         .auth-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #000000;
-            text-align: center;
-            margin-bottom: 40px;
+            font-size: 28px;
         }
 
-        .form-group {
-            margin-bottom: 30px;
-        }
-
-        .form-label {
+        .auth-label {
             font-size: 20px;
-            font-weight: 600;
-            color: #333333;
-            display: block;
-            margin-bottom: 8px;
         }
 
-        .form-input {
-            width: 100%;
-            height: 50px;
-            border: 2px solid #E0E0E0;
-            border-radius: 6px;
-            padding: 0 16px;
-            font-size: 16px;
-            color: #333333;
-            background-color: #FFFFFF;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #FF5555;
-        }
-
-        .form-input.error {
-            border-color: #FF5555;
+        .auth-input {
+            font-size: 14px;
         }
 
         .auth-button {
-            width: 100%;
-            height: 56px;
-            background-color: #FF5555;
-            border: none;
-            border-radius: 6px;
-            color: #FFFFFF;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 24px;
-            transition: background-color 0.3s ease;
-        }
-
-        .auth-button:hover {
-            background-color: #E04444;
-        }
-
-        .auth-button:disabled {
-            background-color: #CCCCCC;
-            cursor: not-allowed;
+            font-size: 22px;
+            height: 50px;
         }
 
         .auth-link {
-            text-align: center;
+            font-size: 18px;
         }
+    }
+</style>
+@endsection
 
-        .auth-link a {
-            color: #0073CC;
-            font-size: 16px;
-            text-decoration: none;
-            font-weight: 500;
-        }
+@section('content')
+<div class="auth-page">
+    <!-- ヘッダー -->
+    <div class="auth-header">
+        <div class="auth-header-content">
+            <div class="auth-header-logo">
+                <img src="{{ asset('images/coachtech-logo.svg') }}" alt="CoachTech">
+            </div>
+        </div>
+    </div>
 
-        .auth-link a:hover {
-            text-decoration: underline;
-        }
+    <!-- 会員登録フォーム -->
+    <div class="auth-container">
+        <div class="auth-form-wrapper">
+            <h2 class="auth-title">会員登録</h2>
 
-        .error-message {
-            color: #FF5555;
-            font-size: 14px;
-            margin-bottom: 16px;
-            text-align: center;
-            background-color: #FFF5F5;
-            padding: 12px;
-            border-radius: 4px;
-            border: 1px solid #FFE5E5;
-        }
-
-        .field-error {
-            color: #FF5555;
-            font-size: 14px;
-            margin-top: 4px;
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <img src="{{ asset('images/coachtech-logo.svg') }}" alt="CoachTech" class="logo">
-    </header>
-
-    <main class="main-content">
-        <div class="auth-container">
-            <h1 class="auth-title">会員登録</h1>
-
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('register') }}" novalidate>
                 @csrf
 
-                <div class="form-group">
-                    <label for="name" class="form-label">ユーザー名</label>
-                    <input type="text" id="name" name="name" class="form-input @error('name') error @enderror" value="{{ old('name') }}">
+                <!-- 名前 -->
+                <div class="auth-form-group">
+                    <label for="name" class="auth-label">名前</label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" class="auth-input">
                     @error('name')
-                        <div class="field-error">{{ $message }}</div>
+                        <p class="auth-error">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="email" class="form-label">メールアドレス</label>
-                    <input type="text" id="email" name="email" class="form-input @error('email') error @enderror" value="{{ old('email') }}">
+                <!-- メールアドレス -->
+                <div class="auth-form-group">
+                    <label for="email" class="auth-label">メールアドレス</label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" class="auth-input">
                     @error('email')
-                        <div class="field-error">{{ $message }}</div>
+                        <p class="auth-error">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="password" class="form-label">パスワード</label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') error @enderror">
+                <!-- パスワード -->
+                <div class="auth-form-group">
+                    <label for="password" class="auth-label">パスワード</label>
+                    <input type="password" id="password" name="password" class="auth-input">
                     @error('password')
-                        <div class="field-error">{{ $message }}</div>
+                        <p class="auth-error">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="password_confirmation" class="form-label">確認用パスワード</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input @error('password_confirmation') error @enderror">
+                <!-- パスワード確認 -->
+                <div class="auth-form-group">
+                    <label for="password_confirmation" class="auth-label">パスワード確認</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="auth-input">
                     @error('password_confirmation')
-                        <div class="field-error">{{ $message }}</div>
+                        <p class="auth-error">{{ $message }}</p>
                     @enderror
                 </div>
 
+                <!-- 登録ボタン -->
                 <button type="submit" class="auth-button">登録する</button>
             </form>
 
-            <div class="auth-link">
-                <a href="{{ route('login') }}">ログインはこちら</a>
-            </div>
+            <!-- ログインはこちら -->
+            <a href="{{ route('login') }}" class="auth-link">ログインはこちら</a>
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</div>
+@endsection

@@ -10,8 +10,20 @@
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "figma-developer-mcp": "^0.6.4",
         "laravel-vite-plugin": "^2.0.0",
+        "sharp": "^0.34.4",
         "tailwindcss": "^4.0.0",
-        "vite": "^7.0.4"
-    }
+        "vite": "^7.0.7"
+    },
+    "name": "coachtech",
+    "version": "1.0.0",
+    "description": "ある企業が開発した独自の勤怠管理アプリです。",
+    "main": "vite.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }

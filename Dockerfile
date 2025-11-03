@@ -1,45 +1,36 @@
-# syntax=docker/dockerfile:1
 FROM php:8.2-cli
 
-ARG WWWUSER=1000
-ARG WWWGROUP=1000
+# システムパッケージとPHP拡張機能のインストール
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install system dependencies and PHP extensions required by Laravel
-RUN apt-get update \
-    && apt-get install -y \
-        git \
-        unzip \
-        libzip-dev \
-        libicu-dev \
-        sqlite3 \
-        libsqlite3-dev \
-        libonig-dev \
-        curl \
-    && docker-php-ext-install \
-        intl \
-        pdo \
-        pdo_mysql \
-        pdo_sqlite \
-        zip \
-        pcntl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Composerのインストール
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Composer (shared cache layer with official image)
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+# Node.jsとnpmのインストール
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
-# Create a non-root user that matches the host user/group when provided
-RUN groupadd --force --gid ${WWWGROUP} sail \
-    && useradd --uid ${WWWUSER} --gid sail --shell /bin/bash --create-home sail
-
+# 作業ディレクトリの設定
 WORKDIR /var/www/html
 
-# Copy entrypoint script
-COPY docker/entrypoint.sh /usr/local/bin/start-app
-RUN chmod +x /usr/local/bin/start-app
+# ファイルのコピー
+COPY . /var/www/html
 
-USER sail
-
-EXPOSE 8000
-
-ENTRYPOINT ["start-app"]
+# 権限の設定
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && mkdir -p /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/logs \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage

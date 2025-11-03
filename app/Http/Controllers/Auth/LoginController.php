@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
     /**
-     * Show the login form.
+     * ログイン画面を表示
      */
     public function showLoginForm()
     {
@@ -19,42 +19,33 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle a login request.
+     * ログイン処理
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ], [
-            'email.required' => 'メールアドレスを入力してください',
-            'password.required' => 'パスワードを入力してください',
-        ]);
+        $credentials = $request->validated();
 
-        $user = Auth::getProvider()->retrieveByCredentials([
-            'email' => $request->email,
-        ]);
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['ログイン情報が登録されていません'],
-            ]);
+            return redirect()->intended('/attendance');
         }
 
-        Auth::login($user, $request->boolean('remember'));
-
-        return redirect()->intended('/');
+        throw ValidationException::withMessages([
+            'email' => 'ログイン情報が登録されていません',
+        ]);
     }
 
     /**
-     * Log the user out.
+     * ログアウト処理
      */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
-        return redirect('/');
+
+        return redirect('/login');
     }
 }
