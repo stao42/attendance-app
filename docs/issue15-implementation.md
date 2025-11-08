@@ -139,4 +139,3 @@ Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])-
 - ✅ Laravel Eloquent ORMを使用
 - ✅ Carbonによる日時処理
 - ✅ Blade TemplatesでUI実装
-

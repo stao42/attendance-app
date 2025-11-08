@@ -162,4 +162,3 @@ Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])-
 - Issue #14: 退勤打刻機能の実装 ✅
 - Issue #15: 休憩開始/終了機能の実装 ✅
 - Issue #16: 打刻画面のUI実装 ✅
-

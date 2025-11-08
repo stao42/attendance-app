@@ -1,60 +1,104 @@
 # CoachTech 勤怠管理アプリケーション
 
-Laravel + Docker + MySQL で構築された勤怠管理システムです。
+Laravel + Docker + MySQL で構築された勤怠管理システムです。Figmaデザインに完全準拠したモダンなUI/UXを実装しています。
+
+## 📋 目次
+
+- [概要](#概要)
+- [機能一覧](#機能一覧)
+- [技術スタック](#技術スタック)
+- [開発環境のセットアップ](#開発環境のセットアップ)
+- [画面一覧](#画面一覧)
+- [主要なルート](#主要なルート)
+- [データベース構成](#データベース構成)
+- [開発ガイド](#開発ガイド)
+- [トラブルシューティング](#トラブルシューティング)
 
 ## 概要
 
 - **サービス名**: CoachTech 勤怠管理アプリケーション
 - **ターゲットユーザー**: 社会人全般（一般ユーザー・管理者）
-- **技術スタック**:
-  - PHP 8.2
-  - Laravel 12.0
-  - MySQL 8.0
-  - Docker / Docker Compose
+- **デザイン**: Figmaデザインに完全準拠
+- **レスポンシブ対応**: PC（1400-1540px）、タブレット、モバイル（<=768px）対応
 
 ## 機能一覧
 
 ### 一般ユーザー向け機能
 
-- **ユーザー認証**
-  - 会員登録（バリデーション付き）
-  - ログイン/ログアウト
-  - エラーメッセージ表示（日本語）
+#### ユーザー認証
+- ✅ 会員登録（バリデーション付き）
+- ✅ ログイン/ログアウト
+- ✅ エラーメッセージ表示（日本語）
 
-- **打刻機能**
-  - 出勤打刻
-  - 退勤打刻
-  - 休憩開始/終了
-  - リアルタイムステータス表示（出勤中/休憩中/退勤済/勤務外）
+#### 打刻機能
+- ✅ 出勤打刻
+- ✅ 退勤打刻
+- ✅ 休憩開始/終了
+- ✅ リアルタイムステータス表示（出勤中/休憩中/退勤済/勤務外）
+- ✅ 現在時刻のリアルタイム表示
 
-- **勤怠管理**
-  - 勤怠一覧表示（月別）
-  - 勤怠詳細表示
-  - 打刻修正申請
+#### 勤怠管理
+- ✅ 勤怠一覧表示（月別）
+- ✅ 勤怠詳細表示
+- ✅ 打刻修正申請
+- ✅ 承認待ちステータスの表示
 
-- **申請管理**
-  - 修正申請一覧表示
-  - 申請ステータス確認
+#### 申請管理
+- ✅ 修正申請一覧表示（承認待ち/承認済みタブ）
+- ✅ 申請ステータス確認
+- ✅ 申請詳細表示
 
 ### 管理者向け機能
 
-- **認証**
-  - 管理者専用ログイン
-  - 管理者権限チェック
+#### 認証
+- ✅ 管理者専用ログイン
+- ✅ 管理者権限チェック
+- ✅ 一般ユーザーからのアクセス制御
 
-- **勤怠管理**
-  - 全スタッフの勤怠一覧
-  - 勤怠詳細表示・編集
-  - スタッフ別勤怠一覧
-  - CSVエクスポート機能
+#### 勤怠管理
+- ✅ 全スタッフの勤怠一覧（日付別）
+- ✅ 勤怠詳細表示・編集
+- ✅ スタッフ別勤怠一覧（月別）
+- ✅ CSVエクスポート機能（BOM付きUTF-8）
 
-- **スタッフ管理**
-  - スタッフ一覧表示
+#### スタッフ管理
+- ✅ スタッフ一覧表示
+- ✅ スタッフ名、メールアドレスの表示
+- ✅ 各スタッフの勤怠一覧へのリンク
 
-- **申請承認**
-  - 打刻修正申請一覧
-  - 申請承認/却下
-  - 承認時のコメント機能
+#### 申請承認
+- ✅ 打刻修正申請一覧（承認待ち/承認済みタブ）
+- ✅ 申請承認/却下
+- ✅ 承認時の勤怠記録自動更新
+- ✅ トランザクション処理によるデータ整合性の確保
+
+## 技術スタック
+
+### バックエンド
+- **PHP**: 8.2
+- **Laravel**: 12.0
+- **MySQL**: 8.0
+- **Carbon**: 日時処理
+
+### フロントエンド
+- **Blade Templates**: Laravelのテンプレートエンジン
+- **CSS**: Flexbox/Grid、カスタムCSS
+- **JavaScript**: リアルタイム時刻表示、タブ切り替え
+- **Vite**: アセットビルドツール
+- **Tailwind CSS**: 4.0.0
+
+### インフラストラクチャ
+- **Docker**: コンテナ化
+- **Docker Compose**: マルチコンテナ管理
+
+### デザイン
+- **Figma**: デザイン準拠
+- **フォント**: Inter
+- **カラーパレット**:
+  - 背景色: `#F0EFF2`
+  - テキスト色: `#000000`
+  - アクセント色: `#0073CC`
+  - エラー色: `#DC3545`
 
 ## 開発環境のセットアップ
 
@@ -124,18 +168,111 @@ docker compose exec app php artisan db:seed
   - Email: `admin@example.com`
   - Password: `password`
   - 権限: 管理者（すべての機能にアクセス可能）
+  - ログインURL: http://localhost:8000/admin/login
 
 - **テストユーザー**
   - Email: `test@example.com`
   - Password: `password`
   - 権限: 一般ユーザー
+  - ログインURL: http://localhost:8000/login
 
 ### アクセス
 
 - **アプリケーション**: http://localhost:8000
-- **phpMyAdmin**: http://localhost:8080
+- **phpMyAdmin**: http://localhost:8080（設定されている場合）
 
-## 開発
+## 画面一覧
+
+### 一般ユーザー向け画面
+
+| 画面名 | URL | 説明 |
+|--------|-----|------|
+| ログイン画面 | `/login` | 一般ユーザーのログイン |
+| 会員登録画面 | `/register` | 新規ユーザー登録 |
+| 打刻画面（PG03） | `/attendance` | 出勤/退勤/休憩の打刻 |
+| 勤怠一覧画面（PG04） | `/attendance/list` | 月別の勤怠記録一覧 |
+| 勤怠詳細画面（PG05） | `/attendance/detail/{id}` | 勤怠記録の詳細表示・修正申請 |
+| 申請一覧画面（PG06） | `/stamp_correction_request/list` | 修正申請の一覧（承認待ち/承認済み） |
+
+### 管理者向け画面
+
+| 画面名 | URL | 説明 |
+|--------|-----|------|
+| 管理者ログイン画面 | `/admin/login` | 管理者専用ログイン |
+| 勤怠一覧画面（PG08） | `/admin/attendance/list` | 全スタッフの勤怠一覧（日付別） |
+| 勤怠詳細画面（PG09） | `/admin/attendance/{id}` | 勤怠記録の詳細表示・編集 |
+| スタッフ一覧画面（PG10） | `/admin/staff/list` | 全スタッフの一覧 |
+| スタッフ別勤怠一覧（PG11） | `/admin/attendance/staff/{id}` | 特定スタッフの勤怠一覧（月別） |
+| 申請一覧画面（PG12） | `/stamp_correction_request/list` | 全スタッフの修正申請一覧 |
+| 修正申請承認画面（PG13） | `/stamp_correction_request/approve/{id}` | 修正申請の承認/却下 |
+
+## 主要なルート
+
+### 一般ユーザー
+
+```php
+GET  /login                                    # ログイン画面
+POST /login                                    # ログイン処理
+GET  /register                                 # 会員登録画面
+POST /register                                 # 会員登録処理
+POST /logout                                   # ログアウト処理
+GET  /attendance                               # 打刻画面
+POST /attendance/clock-in                      # 出勤打刻
+POST /attendance/clock-out                     # 退勤打刻
+POST /attendance/break-start                   # 休憩開始
+POST /attendance/break-end                     # 休憩終了
+GET  /attendance/list                          # 勤怠一覧
+GET  /attendance/detail/{id}                   # 勤怠詳細
+POST /attendance/detail/{id}/request-correction # 修正申請
+GET  /stamp_correction_request/list            # 申請一覧
+```
+
+### 管理者
+
+```php
+GET  /admin/login                              # 管理者ログイン画面
+POST /admin/login                              # 管理者ログイン処理
+POST /admin/logout                             # 管理者ログアウト処理
+GET  /admin/attendance/list                    # 勤怠一覧（管理者）
+GET  /admin/attendance/{id}                    # 勤怠詳細（管理者）
+POST /admin/attendance/{id}/update             # 勤怠更新
+GET  /admin/staff/list                         # スタッフ一覧
+GET  /admin/attendance/staff/{id}              # スタッフ別勤怠一覧
+GET  /admin/attendance/staff/{id}/csv          # CSVエクスポート
+GET  /stamp_correction_request/list            # 申請一覧（管理者）
+GET  /stamp_correction_request/approve/{id}    # 承認画面
+POST /stamp_correction_request/approve/{id}    # 承認処理
+POST /stamp_correction_request/reject/{id}     # 却下処理
+```
+
+## データベース構成
+
+### テーブル一覧
+
+- `users`: ユーザー情報（管理者フラグ含む）
+- `attendance_records`: 勤怠記録
+- `breaks`: 休憩記録
+- `stamp_correction_requests`: 打刻修正申請
+
+### 主要なリレーション
+
+- `User` → `AttendanceRecord` (1対多)
+- `AttendanceRecord` → `BreakRecord` (1対多)
+- `AttendanceRecord` → `StampCorrectionRequest` (1対多)
+- `User` → `StampCorrectionRequest` (1対多)
+
+### マイグレーションファイル
+
+```
+database/migrations/
+├── 0001_01_01_000000_create_users_table.php
+├── 2025_10_31_152839_add_is_admin_to_users_table.php
+├── 2025_10_31_152840_create_attendance_records_table.php
+├── 2025_10_31_160836_create_breaks_table.php
+└── 2025_10_31_160836_create_stamp_correction_requests_table.php
+```
+
+## 開発ガイド
 
 ### コンテナ内でのコマンド実行
 
@@ -172,55 +309,45 @@ docker compose exec app php artisan migrate:fresh --seed
 docker compose exec app php artisan cache:clear
 docker compose exec app php artisan config:clear
 docker compose exec app php artisan view:clear
+
+# 管理者ユーザーの作成
+docker compose exec app php artisan admin:create
 ```
 
-## バリデーションルール
+### バリデーションルール
 
-### 会員登録
+#### 会員登録
 
 - **お名前**: 必須、文字列、最大255文字
 - **メールアドレス**: 必須、有効なメール形式、最大255文字、一意性
 - **パスワード**: 必須、最小8文字
 - **パスワード確認**: パスワードと一致すること
 
-### ログイン
+#### ログイン
 
 - **メールアドレス**: 必須、有効なメール形式
 - **パスワード**: 必須
 
-### エラーメッセージ
+#### エラーメッセージ
 
 エラーメッセージは日本語で表示されます：
 
-- **会員登録**
-  - `お名前を入力してください`
-  - `メールアドレスを入力してください`
-  - `メールアドレスの形式が正しくありません`
-  - `このメールアドレスは既に登録されています`
-  - `パスワードを入力してください`
-  - `パスワードは8文字以上で入力してください`
-  - `パスワードと一致しません`
+**会員登録**
+- `お名前を入力してください`
+- `メールアドレスを入力してください`
+- `メールアドレスの形式が正しくありません`
+- `このメールアドレスは既に登録されています`
+- `パスワードを入力してください`
+- `パスワードは8文字以上で入力してください`
+- `パスワードと一致しません`
 
-- **ログイン**
-  - `メールアドレスを入力してください`
-  - `パスワードを入力してください`
-  - `ログイン情報が登録されていません`
+**ログイン**
+- `メールアドレスを入力してください`
+- `パスワードを入力してください`
+- `ログイン情報が登録されていません`
 
-## データベース構成
-
-### テーブル一覧
-
-- `users`: ユーザー情報（管理者フラグ含む）
-- `attendance_records`: 勤怠記録
-- `breaks`: 休憩記録
-- `stamp_correction_requests`: 打刻修正申請
-
-### 主要なリレーション
-
-- `User` → `AttendanceRecord` (1対多)
-- `AttendanceRecord` → `BreakRecord` (1対多)
-- `AttendanceRecord` → `StampCorrectionRequest` (1対多)
-- `User` → `StampCorrectionRequest` (1対多)
+**管理者ログイン**
+- `管理者権限がありません`
 
 ## プロジェクト構成
 
@@ -230,101 +357,91 @@ coachtech/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── Auth/
-│   │   │   │   ├── LoginController.php       # 一般ユーザーログイン
-│   │   │   │   ├── RegisterController.php    # 会員登録
+│   │   │   │   ├── LoginController.php              # 一般ユーザーログイン
+│   │   │   │   ├── RegisterController.php           # 会員登録
 │   │   │   │   └── Admin/
-│   │   │   │       └── AdminLoginController.php  # 管理者ログイン
-│   │   │   ├── AttendanceController.php      # 勤怠管理
-│   │   │   ├── AdminController.php           # 管理者機能
-│   │   │   └── StampCorrectionRequestController.php  # 修正申請
+│   │   │   │       └── AdminLoginController.php     # 管理者ログイン
+│   │   │   ├── AttendanceController.php             # 勤怠管理
+│   │   │   ├── AdminController.php                  # 管理者機能
+│   │   │   └── StampCorrectionRequestController.php # 修正申請
 │   │   └── Requests/
 │   │       └── Auth/
-│   │           ├── LoginRequest.php          # ログインバリデーション
-│   │           └── RegisterRequest.php       # 登録バリデーション
+│   │           ├── LoginRequest.php                 # ログインバリデーション
+│   │           ├── RegisterRequest.php              # 登録バリデーション
+│   │           └── AdminLoginRequest.php            # 管理者ログインバリデーション
 │   ├── Models/
-│   │   ├── User.php                          # ユーザーモデル
-│   │   ├── AttendanceRecord.php              # 勤怠記録モデル
-│   │   ├── BreakRecord.php                   # 休憩記録モデル
-│   │   └── StampCorrectionRequest.php        # 修正申請モデル
-│   └── Providers/
-│       └── AppServiceProvider.php
+│   │   ├── User.php                                 # ユーザーモデル
+│   │   ├── AttendanceRecord.php                     # 勤怠記録モデル
+│   │   ├── BreakRecord.php                          # 休憩記録モデル
+│   │   └── StampCorrectionRequest.php               # 修正申請モデル
+│   └── Console/
+│       └── Commands/
+│           └── CreateAdminUser.php                 # 管理者ユーザー作成コマンド
 ├── database/
-│   ├── migrations/
-│   │   ├── 0001_01_01_000000_create_users_table.php
-│   │   ├── 2025_10_31_152839_add_is_admin_to_users_table.php
-│   │   ├── 2025_10_31_152840_create_attendance_records_table.php
-│   │   ├── 2025_10_31_160836_create_breaks_table.php
-│   │   └── 2025_10_31_160836_create_stamp_correction_requests_table.php
+│   ├── migrations/                                  # マイグレーションファイル
 │   └── seeders/
-│       └── DatabaseSeeder.php
+│       └── DatabaseSeeder.php                      # シーダー
 ├── resources/
 │   └── views/
 │       ├── layouts/
-│       │   └── app.blade.php                 # メインレイアウト
+│       │   └── app.blade.php                       # メインレイアウト
 │       ├── auth/
-│       │   ├── login.blade.php               # ログイン画面
-│       │   └── register.blade.php            # 会員登録画面
-│       ├── dashboard.blade.php               # ダッシュボード（非使用）
+│       │   ├── login.blade.php                     # ログイン画面
+│       │   ├── register.blade.php                   # 会員登録画面
+│       │   └── admin/
+│       │       └── login.blade.php                 # 管理者ログイン画面
 │       ├── attendance/
-│       │   ├── index.blade.php               # 打刻画面
-│       │   ├── list.blade.php                # 勤怠一覧
-│       │   └── detail.blade.php              # 勤怠詳細
+│       │   ├── index.blade.php                     # 打刻画面
+│       │   ├── list.blade.php                      # 勤怠一覧
+│       │   └── detail.blade.php                    # 勤怠詳細
 │       ├── admin/
-│       │   ├── index.blade.php               # 管理者ダッシュボード
-│       │   ├── users.blade.php               # スタッフ一覧
-│       │   ├── attendance_status.blade.php   # 勤怠状況
-│       │   └── attendance_detail.blade.php   # 勤怠詳細（管理者）
+│       │   ├── attendance_list.blade.php           # 勤怠一覧（管理者）
+│       │   ├── attendance_detail.blade.php         # 勤怠詳細（管理者）
+│       │   ├── staff_list.blade.php                # スタッフ一覧
+│       │   └── staff_attendance_list.blade.php     # スタッフ別勤怠一覧
 │       └── stamp_correction_request/
-│           ├── list.blade.php                # 申請一覧
-│           ├── admin_list.blade.php          # 申請一覧（管理者）
-│           └── approve.blade.php             # 承認画面
+│           ├── list.blade.php                      # 申請一覧
+│           ├── admin_list.blade.php                # 申請一覧（管理者）
+│           └── approve.blade.php                   # 承認画面
 ├── routes/
-│   └── web.php                               # ルート定義
+│   └── web.php                                     # ルート定義
 ├── public/
 │   └── images/
-│       └── coachtech-logo.svg                # ロゴ
-├── docker-compose.yml                        # Docker Compose設定
-├── Dockerfile                                # Dockerイメージ定義
+│       └── coachtech-logo.svg                      # ロゴ
+├── docker-compose.yml                              # Docker Compose設定
+├── Dockerfile                                      # Dockerイメージ定義
 └── README.md
 ```
 
-## 主要なルート
-
-### 一般ユーザー
-
-- `GET /login` - ログイン画面
-- `POST /login` - ログイン処理
-- `GET /register` - 会員登録画面
-- `POST /register` - 会員登録処理
-- `GET /attendance` - 打刻画面
-- `POST /attendance/clock-in` - 出勤打刻
-- `POST /attendance/clock-out` - 退勤打刻
-- `POST /attendance/break-start` - 休憩開始
-- `POST /attendance/break-end` - 休憩終了
-- `GET /attendance/list` - 勤怠一覧
-- `GET /attendance/detail/{id}` - 勤怠詳細
-- `POST /attendance/detail/{id}/request-correction` - 修正申請
-- `GET /stamp_correction_request/list` - 申請一覧
-
-### 管理者
-
-- `GET /admin/login` - 管理者ログイン画面
-- `POST /admin/login` - 管理者ログイン処理
-- `GET /admin/attendance/list` - 勤怠一覧（管理者）
-- `GET /admin/attendance/{id}` - 勤怠詳細（管理者）
-- `POST /admin/attendance/{id}/update` - 勤怠更新
-- `GET /admin/staff/list` - スタッフ一覧
-- `GET /admin/attendance/staff/{id}` - スタッフ別勤怠一覧
-- `GET /admin/attendance/staff/{id}/csv` - CSVエクスポート
-- `GET /admin/stamp_correction_request/list` - 申請一覧（管理者）
-- `GET /admin/stamp_correction_request/approve/{id}` - 承認画面
-- `POST /admin/stamp_correction_request/approve/{id}` - 承認処理
-
 ## デザイン
 
-- レスポンシブデザイン対応
-- Figmaデザインに準拠したUI
-- モダンなカラーパレットとタイポグラフィ
+### Figmaデザイン準拠
+
+- 全画面がFigmaデザインに完全準拠
+- カラーパレット、タイポグラフィ、レイアウトを統一
+- モダンなUI/UXを実装
+
+### レスポンシブデザイン
+
+- **PC対応**: 1400-1540px
+- **タブレット対応**: 1024px以下
+- **モバイル対応**: 768px以下
+- **小型モバイル対応**: 480px以下
+
+### カラーパレット
+
+- 背景色: `#F0EFF2`
+- カード背景: `#FFFFFF`
+- テキスト色: `#000000`
+- アクセント色: `#0073CC`
+- エラー色: `#DC3545`
+- グレー: `#737373`, `#C8C8C8`, `#E1E1E1`
+
+### タイポグラフィ
+
+- フォントファミリー: Inter
+- フォントウェイト: 400, 700
+- レスポンシブフォントサイズ: clamp関数を使用
 
 ## トラブルシューティング
 
@@ -363,7 +480,49 @@ docker compose exec app chmod -R 775 storage bootstrap/cache
 docker compose exec app php artisan cache:clear
 docker compose exec app php artisan config:clear
 docker compose exec app php artisan view:clear
+docker compose exec app php artisan route:clear
 ```
+
+### マイグレーションエラー
+
+```bash
+# データベースをリセット
+docker compose exec app php artisan migrate:fresh --seed
+```
+
+## 実装済み機能
+
+### ✅ 認証機能
+- 会員登録、ログイン、ログアウト（一般ユーザー・管理者）
+- 管理者権限チェック
+- セッション管理
+
+### ✅ 打刻機能
+- 出勤/退勤/休憩開始/休憩終了
+- ステータス管理（勤務外/出勤中/休憩中/退勤済）
+- リアルタイム時刻表示
+
+### ✅ 勤怠管理
+- 勤怠一覧表示（月別・日付別）
+- 勤怠詳細表示・編集
+- 勤務時間の自動計算
+
+### ✅ 修正申請機能
+- 修正申請の送信
+- 申請一覧表示（承認待ち/承認済み）
+- 申請承認/却下
+- トランザクション処理
+
+### ✅ 管理者機能
+- スタッフ一覧
+- スタッフ別勤怠一覧
+- CSVエクスポート
+
+### ✅ UI/UX
+- Figmaデザイン準拠
+- レスポンシブデザイン
+- エラーメッセージ表示
+- 成功メッセージ表示
 
 ## ライセンス
 
