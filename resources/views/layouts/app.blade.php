@@ -243,13 +243,23 @@
                 <img src="{{ asset('images/coachtech-logo.svg') }}" alt="CoachTech" style="width: 370px; height: 36px; display: block;">
             </div>
             <nav class="header-nav">
-                <a href="{{ route('attendance.index') }}">勤怠</a>
-                <a href="{{ route('attendance.list') }}">勤怠一覧</a>
-                <a href="{{ route('stamp_correction_request.list') }}">申請</a>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit">ログアウト</button>
-                </form>
+                @if(Auth::user()->is_admin)
+                    <a href="{{ route('admin.attendance.list') }}">勤怠一覧</a>
+                    <a href="{{ route('admin.staff.list') }}">スタッフ一覧</a>
+                    <a href="{{ route('stamp_correction_request.list') }}">申請</a>
+                    <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit">ログアウト</button>
+                    </form>
+                @else
+                    <a href="{{ route('attendance.index') }}">勤怠</a>
+                    <a href="{{ route('attendance.list') }}">勤怠一覧</a>
+                    <a href="{{ route('stamp_correction_request.list') }}">申請</a>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit">ログアウト</button>
+                    </form>
+                @endif
             </nav>
         </div>
     </div>

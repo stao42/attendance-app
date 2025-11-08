@@ -98,4 +98,3 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 - ✅ ログイン処理
 - ✅ 管理者画面へのリダイレクト (`/admin/attendance/list`)
 - ✅ 一般ユーザーが管理者ログインを試みた場合のエラーメッセージ
-
