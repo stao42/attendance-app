@@ -146,28 +146,20 @@
     .attendance-list-table {
         width: 100%;
         min-width: 900px;
+        border-collapse: collapse;
     }
 
-    .attendance-list-table-header {
-        position: relative;
-        width: 100%;
+    .attendance-list-table thead {
+        border-bottom: 3px solid #E1E1E1;
+    }
+
+    .attendance-list-table-header-row {
         height: 31px;
-        margin-bottom: 0;
-    }
-
-    .attendance-list-table-header-line {
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 3px solid #E1E1E1;
     }
 
     .attendance-list-table-header-item {
-        position: absolute;
         height: 19px;
-        top: 6px;
+        padding: 6px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -180,31 +172,45 @@
 
     .attendance-list-table-header-item.date-col {
         text-align: left;
+        padding-left: 57px;
+        width: 93px;
     }
 
     .attendance-list-table-header-item.time-col {
         text-align: center;
+        width: 58px;
+    }
+
+    .attendance-list-table-header-item.time-col:nth-of-type(3) {
+        width: 55px;
+    }
+
+    .attendance-list-table-header-item.time-col:nth-of-type(4) {
+        width: 42px;
+    }
+
+    .attendance-list-table-header-item.time-col:nth-of-type(5) {
+        width: 45px;
     }
 
     .attendance-list-table-header-item.detail-col {
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
     .attendance-list-table-row {
-        position: relative;
-        width: 100%;
         height: 33px;
-        margin-top: 0;
+        border-bottom: 2px solid #E1E1E1;
     }
 
-    .attendance-list-table-row:first-of-type {
-        margin-top: 29px;
+    .attendance-list-table-row:last-child {
+        border-bottom: none;
     }
 
     .attendance-list-table-cell {
-        position: absolute;
         height: 19px;
-        top: 7px;
+        padding: 7px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -215,26 +221,33 @@
         white-space: nowrap;
     }
 
-    .attendance-list-table-row:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 2px solid #E1E1E1;
-    }
-
     .attendance-list-table-cell.date-col {
         text-align: left;
+        padding-left: 55px;
+        width: 93px;
     }
 
     .attendance-list-table-cell.time-col {
         text-align: center;
+        width: 58px;
+    }
+
+    .attendance-list-table-cell.time-col:nth-of-type(3) {
+        width: 55px;
+    }
+
+    .attendance-list-table-cell.time-col:nth-of-type(4) {
+        width: 42px;
+    }
+
+    .attendance-list-table-cell.time-col:nth-of-type(5) {
+        width: 45px;
     }
 
     .attendance-list-table-cell.detail-col {
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
 
@@ -436,89 +449,78 @@
         <!-- テーブルコンテナ -->
         <div class="attendance-list-table-container">
             @if($records->count() > 0)
-                <div class="attendance-list-table">
-                    <!-- テーブルヘッダー -->
-                    <div class="attendance-list-table-header">
-                        <div class="attendance-list-table-header-line"></div>
-                        <div class="attendance-list-table-header-item date-col" style="left: 57px; width: 35px;">日付</div>
-                        <div class="attendance-list-table-header-item time-col" style="left: 246px; width: 35px;">出勤</div>
-                        <div class="attendance-list-table-header-item time-col" style="left: 379px; width: 35px;">退勤</div>
-                        <div class="attendance-list-table-header-item time-col" style="left: 512px; width: 35px;">休憩</div>
-                        <div class="attendance-list-table-header-item time-col" style="left: 645px; width: 35px;">合計</div>
-                        <div class="attendance-list-table-header-item detail-col" style="left: 778px; width: 35px;">詳細</div>
-                    </div>
-
-                    <!-- テーブルデータ -->
-                    @foreach($records as $record)
-                        <div class="attendance-list-table-row">
-                            <!-- 日付 -->
-                            <div class="attendance-list-table-cell date-col" style="left: 55px; width: 93px;">
-                                {{ $record->date->format('m/d') }}({{ ['日', '月', '火', '水', '木', '金', '土'][$record->date->format('w')] }})
-                            </div>
-
-                            <!-- 出勤時刻 -->
-                            <div class="attendance-list-table-cell time-col" style="left: 238px; width: 58px;">
-                                @if($record->clock_in)
-                                    @php
-                                        $clockInParts = explode(':', $record->clock_in);
-                                        $clockInHours = str_pad((int)$clockInParts[0], 2, '0', STR_PAD_LEFT);
-                                        $clockInMinutes = str_pad((int)$clockInParts[1], 2, '0', STR_PAD_LEFT);
-                                        echo $clockInHours . ':' . $clockInMinutes;
-                                    @endphp
-                                @else
-                                    -
-                                @endif
-                            </div>
-
-                            <!-- 退勤時刻 -->
-                            <div class="attendance-list-table-cell time-col" style="left: 368px; width: 55px;">
-                                @if($record->clock_out)
-                                    @php
-                                        $clockOutParts = explode(':', $record->clock_out);
-                                        $clockOutHours = str_pad((int)$clockOutParts[0], 2, '0', STR_PAD_LEFT);
-                                        $clockOutMinutes = str_pad((int)$clockOutParts[1], 2, '0', STR_PAD_LEFT);
-                                        echo $clockOutHours . ':' . $clockOutMinutes;
-                                    @endphp
-                                @else
-                                    -
-                                @endif
-                            </div>
-
-                            <!-- 休憩時間 -->
-                            <div class="attendance-list-table-cell time-col" style="left: 509px; width: 42px;">
-                                @if($record->break_time)
-                                    @php
-                                        $breakParts = explode(':', $record->break_time);
-                                        $breakHours = (int)$breakParts[0];
-                                        $breakMinutes = (int)$breakParts[1];
-                                        echo $breakHours . ':' . str_pad($breakMinutes, 2, '0', STR_PAD_LEFT);
-                                    @endphp
-                                @else
-                                    0:00
-                                @endif
-                            </div>
-
-                            <!-- 勤務時間（合計） -->
-                            <div class="attendance-list-table-cell time-col" style="left: 642px; width: 45px;">
-                                @if($record->work_time)
-                                    @php
-                                        $workParts = explode(':', $record->work_time);
-                                        $workHours = (int)$workParts[0];
-                                        $workMinutes = (int)$workParts[1];
-                                        echo $workHours . ':' . str_pad($workMinutes, 2, '0', STR_PAD_LEFT);
-                                    @endphp
-                                @else
-                                    -
-                                @endif
-                            </div>
-
-                            <!-- 詳細ボタン -->
-                            <div class="attendance-list-table-cell detail-col" style="left: 778px; width: 35px;">
-                                <a href="{{ route('attendance.detail', $record->id) }}" class="attendance-list-detail-link">詳細</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <table class="attendance-list-table">
+                    <thead>
+                        <tr class="attendance-list-table-header-row">
+                            <th class="attendance-list-table-header-item date-col">日付</th>
+                            <th class="attendance-list-table-header-item time-col">出勤</th>
+                            <th class="attendance-list-table-header-item time-col">退勤</th>
+                            <th class="attendance-list-table-header-item time-col">休憩</th>
+                            <th class="attendance-list-table-header-item time-col">合計</th>
+                            <th class="attendance-list-table-header-item detail-col">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($records as $record)
+                            <tr class="attendance-list-table-row">
+                                <td class="attendance-list-table-cell date-col">
+                                    {{ $record->date->format('m/d') }}({{ ['日', '月', '火', '水', '木', '金', '土'][$record->date->format('w')] }})
+                                </td>
+                                <td class="attendance-list-table-cell time-col">
+                                    @if($record->clock_in)
+                                        @php
+                                            $clockInParts = explode(':', $record->clock_in);
+                                            $clockInHours = str_pad((int)$clockInParts[0], 2, '0', STR_PAD_LEFT);
+                                            $clockInMinutes = str_pad((int)$clockInParts[1], 2, '0', STR_PAD_LEFT);
+                                            echo $clockInHours . ':' . $clockInMinutes;
+                                        @endphp
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="attendance-list-table-cell time-col">
+                                    @if($record->clock_out)
+                                        @php
+                                            $clockOutParts = explode(':', $record->clock_out);
+                                            $clockOutHours = str_pad((int)$clockOutParts[0], 2, '0', STR_PAD_LEFT);
+                                            $clockOutMinutes = str_pad((int)$clockOutParts[1], 2, '0', STR_PAD_LEFT);
+                                            echo $clockOutHours . ':' . $clockOutMinutes;
+                                        @endphp
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="attendance-list-table-cell time-col">
+                                    @if($record->break_time)
+                                        @php
+                                            $breakParts = explode(':', $record->break_time);
+                                            $breakHours = (int)$breakParts[0];
+                                            $breakMinutes = (int)$breakParts[1];
+                                            echo $breakHours . ':' . str_pad($breakMinutes, 2, '0', STR_PAD_LEFT);
+                                        @endphp
+                                    @else
+                                        0:00
+                                    @endif
+                                </td>
+                                <td class="attendance-list-table-cell time-col">
+                                    @if($record->work_time)
+                                        @php
+                                            $workParts = explode(':', $record->work_time);
+                                            $workHours = (int)$workParts[0];
+                                            $workMinutes = (int)$workParts[1];
+                                            echo $workHours . ':' . str_pad($workMinutes, 2, '0', STR_PAD_LEFT);
+                                        @endphp
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="attendance-list-table-cell detail-col">
+                                    <a href="{{ route('attendance.detail', $record->id) }}" class="attendance-list-detail-link">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @else
                 <div class="attendance-list-empty">
                     <p>選択した月の勤怠記録がありません。</p>

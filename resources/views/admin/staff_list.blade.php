@@ -57,27 +57,20 @@
     .admin-staff-list-table {
         width: 100%;
         min-width: 900px;
+        border-collapse: collapse;
     }
 
-    .admin-staff-list-table-header {
-        position: relative;
-        width: 100%;
+    .admin-staff-list-table thead {
+        border-bottom: 3px solid #E1E1E1;
+    }
+
+    .admin-staff-list-table-header-row {
         height: 31px;
     }
 
-    .admin-staff-list-table-header-line {
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 3px solid #E1E1E1;
-    }
-
     .admin-staff-list-table-header-item {
-        position: absolute;
         height: 19px;
-        top: 6px;
+        padding: 6px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -86,47 +79,37 @@
         letter-spacing: 0.15em;
         color: #737373;
         white-space: nowrap;
+        text-align: left;
     }
 
     .admin-staff-list-table-header-item.name-col {
-        left: 57px;
-        width: 100px;
-        text-align: left;
+        padding-left: 36px;
+        width: 200px;
     }
 
     .admin-staff-list-table-header-item.email-col {
-        left: 300px;
-        width: 200px;
-        text-align: left;
+        padding-left: 0;
+        width: 400px;
     }
 
     .admin-staff-list-table-header-item.detail-col {
-        left: 778px;
-        width: 35px;
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
     .admin-staff-list-table-row {
-        position: relative;
-        width: 100%;
         height: 50px;
-        margin-top: 0;
+        border-bottom: 2px solid #E1E1E1;
     }
 
-    .admin-staff-list-table-row:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 2px solid #E1E1E1;
+    .admin-staff-list-table-row:last-child {
+        border-bottom: none;
     }
 
     .admin-staff-list-table-cell {
-        position: absolute;
         height: 19px;
-        top: 15px;
+        padding: 15px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -135,24 +118,23 @@
         letter-spacing: 0.15em;
         color: #737373;
         white-space: nowrap;
+        text-align: left;
     }
 
     .admin-staff-list-table-cell.name-col {
-        left: 36px;
+        padding-left: 36px;
         width: 200px;
-        text-align: left;
     }
 
     .admin-staff-list-table-cell.email-col {
-        left: 300px;
+        padding-left: 0;
         width: 400px;
-        text-align: left;
     }
 
     .admin-staff-list-table-cell.detail-col {
-        left: 778px;
-        width: 35px;
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
     .admin-staff-list-detail-link {
@@ -242,27 +224,30 @@
         <!-- テーブルセクション -->
         <div class="admin-staff-list-table-container">
             @if($users->count() > 0)
-                <div class="admin-staff-list-table">
-                    <div class="admin-staff-list-table-header">
-                        <div class="admin-staff-list-table-header-line"></div>
-                        <div class="admin-staff-list-table-header-item name-col">名前</div>
-                        <div class="admin-staff-list-table-header-item email-col">メールアドレス</div>
-                        <div class="admin-staff-list-table-header-item detail-col">詳細</div>
-                    </div>
-                    @foreach($users as $user)
-                        <div class="admin-staff-list-table-row">
-                            <div class="admin-staff-list-table-cell name-col">
-                                {{ $user->name }}
-                            </div>
-                            <div class="admin-staff-list-table-cell email-col">
-                                {{ $user->email }}
-                            </div>
-                            <div class="admin-staff-list-table-cell detail-col">
-                                <a href="{{ route('admin.attendance.staff', $user->id) }}" class="admin-staff-list-detail-link">詳細</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <table class="admin-staff-list-table">
+                    <thead>
+                        <tr class="admin-staff-list-table-header-row">
+                            <th class="admin-staff-list-table-header-item name-col">名前</th>
+                            <th class="admin-staff-list-table-header-item email-col">メールアドレス</th>
+                            <th class="admin-staff-list-table-header-item detail-col">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($users as $user)
+                            <tr class="admin-staff-list-table-row">
+                                <td class="admin-staff-list-table-cell name-col">
+                                    {{ $user->name }}
+                                </td>
+                                <td class="admin-staff-list-table-cell email-col">
+                                    {{ $user->email }}
+                                </td>
+                                <td class="admin-staff-list-table-cell detail-col">
+                                    <a href="{{ route('admin.attendance.staff', $user->id) }}" class="admin-staff-list-detail-link">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @else
                 <div class="admin-staff-list-empty">
                     <p>スタッフが登録されていません。</p>

@@ -110,28 +110,20 @@
     .admin-stamp-correction-request-list-table {
         width: 100%;
         min-width: 900px;
+        border-collapse: collapse;
     }
 
-    .admin-stamp-correction-request-list-table-header {
-        position: relative;
-        width: 100%;
+    .admin-stamp-correction-request-list-table thead {
+        border-bottom: 3px solid #E1E1E1;
+    }
+
+    .admin-stamp-correction-request-list-table-header-row {
         height: 32px;
-        margin-bottom: 0;
-    }
-
-    .admin-stamp-correction-request-list-table-header-line {
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 3px solid #E1E1E1;
     }
 
     .admin-stamp-correction-request-list-table-header-item {
-        position: absolute;
         height: 19px;
-        top: 6px;
+        padding: 6px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -140,79 +132,57 @@
         letter-spacing: 0.15em;
         color: #737373;
         white-space: nowrap;
+        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-header-item.status-col {
-        left: 55px;
-        width: 35px;
-        text-align: center;
+        padding-left: 55px;
+        width: 72px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.name-col {
-        left: 180px;
-        width: 35px;
-        text-align: center;
+        padding-left: 0;
+        width: 53px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.date-col {
-        left: 305px;
-        width: 72px;
-        text-align: center;
+        padding-left: 0;
+        width: 95px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.reason-col {
-        left: 468px;
-        width: 72px;
-        text-align: center;
+        padding-left: 0;
+        width: 90px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.request-date-col {
-        left: 623px;
-        width: 72px;
-        text-align: center;
+        padding-left: 0;
+        width: 97px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.approved-date-col {
-        left: 623px;
-        width: 72px;
-        text-align: center;
+        padding-left: 0;
+        width: 97px;
     }
 
     .admin-stamp-correction-request-list-table-header-item.detail-col {
-        left: 778px;
-        width: 35px;
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
     .admin-stamp-correction-request-list-table-row {
-        position: relative;
-        width: 100%;
         height: 33px;
-        margin-top: 0;
+        border-bottom: 2px solid #E1E1E1;
     }
 
-    .admin-stamp-correction-request-list-table-row:first-of-type {
-        margin-top: 14px;
-    }
-
-    .admin-stamp-correction-request-list-table-row::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 0px;
-        left: 0;
-        bottom: 0;
-        border-top: 2px solid #E1E1E1;
-    }
-
-    .admin-stamp-correction-request-list-table-row:last-child::after {
-        display: none;
+    .admin-stamp-correction-request-list-table-row:last-child {
+        border-bottom: none;
     }
 
     .admin-stamp-correction-request-list-table-cell {
-        position: absolute;
         height: 19px;
-        top: 7px;
+        padding: 7px 0;
         font-family: 'Inter', sans-serif;
         font-style: normal;
         font-weight: 700;
@@ -220,48 +190,43 @@
         line-height: 19px;
         color: #737373;
         white-space: nowrap;
+        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.status-col {
-        left: 55px;
+        padding-left: 55px;
         width: 72px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.name-col {
-        left: 180px;
+        padding-left: 0;
         width: 53px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.date-col {
-        left: 305px;
+        padding-left: 0;
         width: 95px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.reason-col {
-        left: 468px;
+        padding-left: 0;
         width: 90px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.request-date-col {
-        left: 623px;
+        padding-left: 0;
         width: 97px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.approved-date-col {
-        left: 623px;
+        padding-left: 0;
         width: 97px;
-        text-align: center;
     }
 
     .admin-stamp-correction-request-list-table-cell.detail-col {
-        left: 779px;
-        width: 35px;
         text-align: right;
+        padding-right: 0;
+        width: 35px;
     }
 
     .admin-stamp-correction-request-list-detail-link {
@@ -347,29 +312,32 @@
         <!-- 承認待ちテーブル -->
         <div id="pending-section" class="admin-stamp-correction-request-list-table-container">
             @if($pendingRequests->count() > 0)
-                <div class="admin-stamp-correction-request-list-table">
-                    <div class="admin-stamp-correction-request-list-table-header">
-                        <div class="admin-stamp-correction-request-list-table-header-line"></div>
-                        <div class="admin-stamp-correction-request-list-table-header-item status-col">状態</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item name-col">名前</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item date-col">対象日時</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item reason-col">申請理由</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item request-date-col">申請日時</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item detail-col">詳細</div>
-                    </div>
-                    @foreach($pendingRequests as $request)
-                        <div class="admin-stamp-correction-request-list-table-row">
-                            <div class="admin-stamp-correction-request-list-table-cell status-col">承認待ち</div>
-                            <div class="admin-stamp-correction-request-list-table-cell name-col">{{ $request->user->name }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell date-col">{{ $request->attendanceRecord->date->format('Y/m/d') }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell reason-col">{{ $request->requested_notes ?? '-' }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell request-date-col">{{ $request->created_at->format('Y/m/d') }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell detail-col">
-                                <a href="{{ route('admin.stamp_correction_request.approve.detail', $request->id) }}" class="admin-stamp-correction-request-list-detail-link">詳細</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <table class="admin-stamp-correction-request-list-table">
+                    <thead>
+                        <tr class="admin-stamp-correction-request-list-table-header-row">
+                            <th class="admin-stamp-correction-request-list-table-header-item status-col">状態</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item name-col">名前</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item date-col">対象日時</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item reason-col">申請理由</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item request-date-col">申請日時</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item detail-col">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingRequests as $request)
+                            <tr class="admin-stamp-correction-request-list-table-row">
+                                <td class="admin-stamp-correction-request-list-table-cell status-col">承認待ち</td>
+                                <td class="admin-stamp-correction-request-list-table-cell name-col">{{ $request->user->name }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell date-col">{{ $request->attendanceRecord->date->format('Y/m/d') }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell reason-col">{{ $request->requested_notes ?? '-' }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell request-date-col">{{ $request->created_at->format('Y/m/d') }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell detail-col">
+                                    <a href="{{ route('admin.stamp_correction_request.approve.detail', $request->id) }}" class="admin-stamp-correction-request-list-detail-link">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @else
                 <div class="admin-stamp-correction-request-list-empty">
                     <p>承認待ちの申請がありません。</p>
@@ -380,29 +348,32 @@
         <!-- 承認済みテーブル -->
         <div id="approved-section" class="admin-stamp-correction-request-list-table-container" style="display: none;">
             @if($approvedRequests->count() > 0)
-                <div class="admin-stamp-correction-request-list-table">
-                    <div class="admin-stamp-correction-request-list-table-header">
-                        <div class="admin-stamp-correction-request-list-table-header-line"></div>
-                        <div class="admin-stamp-correction-request-list-table-header-item status-col">状態</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item name-col">名前</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item date-col">対象日時</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item reason-col">申請理由</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item approved-date-col">承認日時</div>
-                        <div class="admin-stamp-correction-request-list-table-header-item detail-col">詳細</div>
-                    </div>
-                    @foreach($approvedRequests as $request)
-                        <div class="admin-stamp-correction-request-list-table-row">
-                            <div class="admin-stamp-correction-request-list-table-cell status-col">承認済み</div>
-                            <div class="admin-stamp-correction-request-list-table-cell name-col">{{ $request->user->name }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell date-col">{{ $request->attendanceRecord->date->format('Y/m/d') }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell reason-col">{{ $request->requested_notes ?? '-' }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell approved-date-col">{{ $request->approved_at ? $request->approved_at->format('Y/m/d') : '-' }}</div>
-                            <div class="admin-stamp-correction-request-list-table-cell detail-col">
-                                <a href="{{ route('admin.stamp_correction_request.approve.detail', $request->id) }}" class="admin-stamp-correction-request-list-detail-link">詳細</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                <table class="admin-stamp-correction-request-list-table">
+                    <thead>
+                        <tr class="admin-stamp-correction-request-list-table-header-row">
+                            <th class="admin-stamp-correction-request-list-table-header-item status-col">状態</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item name-col">名前</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item date-col">対象日時</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item reason-col">申請理由</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item approved-date-col">承認日時</th>
+                            <th class="admin-stamp-correction-request-list-table-header-item detail-col">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($approvedRequests as $request)
+                            <tr class="admin-stamp-correction-request-list-table-row">
+                                <td class="admin-stamp-correction-request-list-table-cell status-col">承認済み</td>
+                                <td class="admin-stamp-correction-request-list-table-cell name-col">{{ $request->user->name }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell date-col">{{ $request->attendanceRecord->date->format('Y/m/d') }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell reason-col">{{ $request->requested_notes ?? '-' }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell approved-date-col">{{ $request->approved_at ? $request->approved_at->format('Y/m/d') : '-' }}</td>
+                                <td class="admin-stamp-correction-request-list-table-cell detail-col">
+                                    <a href="{{ route('admin.stamp_correction_request.approve.detail', $request->id) }}" class="admin-stamp-correction-request-list-detail-link">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @else
                 <div class="admin-stamp-correction-request-list-empty">
                     <p>承認済みの申請がありません。</p>
