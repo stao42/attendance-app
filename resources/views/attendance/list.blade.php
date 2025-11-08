@@ -36,7 +36,7 @@
         flex-shrink: 0;
     }
 
-    .attendance-list-title h2 {
+    .attendance-list-title h1 {
         margin: 0;
         padding: 0;
         font-family: 'Inter', sans-serif;
@@ -278,7 +278,7 @@
             margin-bottom: 40px;
         }
 
-        .attendance-list-title h2 {
+        .attendance-list-title h1 {
             font-size: 24px;
             line-height: 28px;
         }
@@ -318,7 +318,7 @@
             margin-bottom: 32px;
         }
 
-        .attendance-list-title h2 {
+        .attendance-list-title h1 {
             font-size: 20px;
             line-height: 24px;
         }
@@ -369,7 +369,7 @@
             gap: 12px;
         }
 
-        .attendance-list-title h2 {
+        .attendance-list-title h1 {
             font-size: 18px;
             line-height: 22px;
         }
@@ -409,7 +409,7 @@
         <div class="attendance-list-header">
             <div class="attendance-list-vertical-line"></div>
             <div class="attendance-list-title">
-                <h2>勤怠一覧</h2>
+                <h1>勤怠一覧</h1>
             </div>
         </div>
 

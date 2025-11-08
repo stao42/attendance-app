@@ -31,7 +31,7 @@
         border-radius: 99px;
     }
 
-    .attendance-detail-header h2 {
+    .attendance-detail-header h1 {
         font-family: 'Inter', sans-serif;
         font-weight: 700;
         font-size: clamp(22px, 3vw, 30px);
@@ -45,6 +45,17 @@
         padding: clamp(24px, 4vw, 56px);
         --value-column-width: clamp(120px, 14vw, 160px);
         --value-column-gap: clamp(16px, 3.5vw, 48px);
+    }
+
+    .attendance-detail-pending-message {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.15em;
+        color: #FF000080;
     }
 
     .attendance-detail-form,
@@ -270,7 +281,7 @@
     <div class="attendance-detail-wrapper">
         <div class="attendance-detail-header">
             <span class="attendance-detail-vertical-line" aria-hidden="true"></span>
-            <h2>勤怠詳細</h2>
+            <h1>勤怠詳細</h1>
         </div>
 
         @if($isEditable)
@@ -397,6 +408,12 @@
                 </div>
             </div>
         </div>
+
+        @if($hasPendingRequest)
+            <div class="attendance-detail-pending-message">
+                *承認待ちのため修正はできません。
+            </div>
+        @endif
 
         @if($isEditable)
                 </form>
