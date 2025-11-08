@@ -138,11 +138,21 @@ docker compose up -d --build
 
 初回起動時はビルドに時間がかかります。
 
+**注意**: 既存のコンテナが存在する場合は、先に削除してください：
+
+```bash
+docker compose down
+# または個別に削除
+docker rm coachtech_db coachtech_app coachtech_phpmyadmin
+```
+
 4. **Composerパッケージのインストール**
 
 ```bash
-docker compose exec app composer install
+docker compose run --rm app composer install
 ```
+
+**注意**: `docker compose exec`ではなく`docker compose run --rm`を使用してください。コンテナが起動していない場合でも実行できます。
 
 5. **アプリケーションキーの生成**
 
@@ -456,6 +466,54 @@ docker compose down
 docker compose up -d --build
 ```
 
+### コンテナ名の競合エラー
+
+既存のコンテナが存在する場合、以下のエラーが発生することがあります：
+
+```
+Error response from daemon: Conflict. The container name "/coachtech_db" is already in use
+```
+
+**解決方法：**
+
+```bash
+# 既存のコンテナを削除
+docker rm coachtech_db
+
+# または、すべてのコンテナを停止・削除
+docker compose down
+```
+
+### サービスが起動しない（vendor/autoload.phpが見つからない）
+
+`composer install`が実行されていない場合、以下のエラーが発生します：
+
+```
+Warning: require(/var/www/html/vendor/autoload.php): Failed to open stream
+```
+
+**解決方法：**
+
+```bash
+# Composerパッケージをインストール
+docker compose run --rm app composer install
+```
+
+### APP_KEYが設定されていないエラー
+
+初回セットアップ時、以下のエラーが発生することがあります：
+
+```
+No application encryption key has been specified
+```
+
+**解決方法：**
+
+```bash
+# アプリケーションキーを生成
+docker compose exec app php artisan key:generate
+```
+
 ### データベース接続エラー
 
 `.env`ファイルのデータベース設定を確認してください：
@@ -466,6 +524,21 @@ DB_HOST=db
 DB_DATABASE=coachtech
 DB_USERNAME=root
 DB_PASSWORD=root
+```
+
+### 500エラーが発生する
+
+データベースのマイグレーションが実行されていない場合、500エラーが発生します。
+
+**解決方法：**
+
+```bash
+# マイグレーションを実行
+docker compose exec app php artisan migrate
+
+# キャッシュをクリア
+docker compose exec app php artisan cache:clear
+docker compose exec app php artisan config:clear
 ```
 
 ### パーミッションエラー
