@@ -7,7 +7,7 @@
     .attendance-page {
         min-height: calc(100vh - 80px);
         background-color: #F0EFF2;
-        padding: 80px 25px 40px;
+        padding: 40px 25px;
         position: relative;
         display: flex;
         align-items: center;
@@ -33,7 +33,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 32px;
+        margin-bottom: 24px;
     }
 
     .status-badge span {
@@ -41,12 +41,13 @@
         font-family: 'Inter', sans-serif;
         font-weight: 700;
         font-size: 18px;
+        line-height: 1.2102272245619032em;
         letter-spacing: 0.15em;
+        text-align: center;
     }
 
     .date-display {
-        margin-top: 0;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
         text-align: center;
     }
 
@@ -55,11 +56,12 @@
         font-family: 'Inter', sans-serif;
         font-weight: 400;
         font-size: 40px;
-        line-height: 1.21;
+        line-height: 1.2102272033691406em;
+        text-align: center;
     }
 
     .time-display {
-        margin-bottom: 80px;
+        margin-bottom: 40px;
         text-align: center;
     }
 
@@ -68,15 +70,18 @@
         font-family: 'Inter', sans-serif;
         font-weight: 700;
         font-size: 80px;
-        line-height: 1.21;
+        line-height: 1.2102272033691406em;
+        text-align: center;
     }
 
     .button-group {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        gap: 20px;
+        justify-content: center;
+        gap: 82px;
         margin-bottom: 40px;
+        width: 100%;
     }
 
     .attendance-button {
@@ -92,6 +97,11 @@
         transition: opacity 0.2s;
     }
 
+    .attendance-button.break-button {
+        background-color: #FFFFFF;
+        border: none;
+    }
+
     .attendance-button:hover {
         opacity: 0.8;
     }
@@ -101,16 +111,33 @@
         font-family: 'Inter', sans-serif;
         font-weight: 700;
         font-size: 32px;
+        line-height: 1.2102272510528564em;
         letter-spacing: 0.15em;
+        text-align: center;
+    }
+
+    .attendance-button.break-button span {
+        color: #000000;
+    }
+
+    .thank-you-message {
+        color: #000000;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 26px;
+        line-height: 1.2102272327129657em;
+        letter-spacing: 0.15em;
+        text-align: center;
     }
 
     .time-info {
-        margin-top: 40px;
-        padding: 16px;
-        background-color: rgba(0, 0, 0, 0.05);
+        width: 100%;
+        max-width: 400px;
+        padding: 16px 24px;
+        background-color: #C8C8C8;
         border-radius: 12px;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .time-info-label {
@@ -199,50 +226,35 @@
                     </button>
                 </form>
             @elseif($status === '出勤中')
-                <!-- 休憩ボタンと退勤ボタン -->
-                <form method="POST" action="{{ route('attendance.break-start') }}">
-                    @csrf
-                    <button type="submit" class="attendance-button">
-                        <span>休憩</span>
-                    </button>
-                </form>
+                <!-- 退勤ボタンと休憩入ボタン（横並び） -->
                 <form method="POST" action="{{ route('attendance.clock-out') }}">
                     @csrf
                     <button type="submit" class="attendance-button">
                         <span>退勤</span>
                     </button>
                 </form>
+                <form method="POST" action="{{ route('attendance.break-start') }}">
+                    @csrf
+                    <button type="submit" class="attendance-button break-button">
+                        <span>休憩入</span>
+                    </button>
+                </form>
             @elseif($status === '休憩中')
                 <!-- 休憩戻ボタン -->
                 <form method="POST" action="{{ route('attendance.break-end') }}">
                     @csrf
-                    <button type="submit" class="attendance-button">
+                    <button type="submit" class="attendance-button break-button">
                         <span>休憩戻</span>
                     </button>
                 </form>
             @elseif($status === '退勤済')
-                <!-- 退勤済みの場合はボタンを表示しない -->
-                <div class="attendance-button" style="background-color: #C8C8C8; cursor: default;">
-                    <span style="color: #696969;">退勤済み</span>
+                <!-- 退勤済みの場合はメッセージを表示 -->
+                <div class="thank-you-message">
+                    お疲れ様でした。
                 </div>
             @endif
         </div>
 
-        <!-- 出勤時刻表示 -->
-        @if($todayRecord && $todayRecord->clock_in)
-            <div class="time-info">
-                <div class="time-info-label">出勤時刻</div>
-                <div class="time-info-value">{{ $todayRecord->clock_in }}</div>
-            </div>
-        @endif
-
-        <!-- 退勤時刻表示 -->
-        @if($todayRecord && $todayRecord->clock_out)
-            <div class="time-info">
-                <div class="time-info-label">退勤時刻</div>
-                <div class="time-info-value">{{ $todayRecord->clock_out }}</div>
-            </div>
-        @endif
     </div>
 </div>
 
