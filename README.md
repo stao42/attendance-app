@@ -114,7 +114,7 @@ Laravel + Docker + MySQL で構築された勤怠管理システムです。Figm
 
 ```bash
 git clone <repository-url>
-cd coachtech
+cd attendance-app
 ```
 
 2. **`.env`ファイルの設定**
