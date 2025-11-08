@@ -2,136 +2,408 @@
 
 @section('title', '勤怠詳細')
 
-@section('content')
-<div style="background-color: #F0EFF2; min-height: calc(100vh - 80px); padding: 32px; margin: -24px;">
-    <div style="max-width: 1512px; margin: 0 auto; background-color: #FFFFFF; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h2 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 32px; margin-bottom: 24px; color: #000000;">勤怠詳細</h2>
+@section('styles')
+<style>
+    .attendance-detail-container {
+        min-height: calc(100vh - 80px);
+        background: #F0EFF2;
+        padding: clamp(32px, 6vw, 80px) clamp(16px, 6vw, 80px) clamp(96px, 10vw, 128px);
+    }
 
-        @if($hasPendingRequest)
-            <div style="padding: 16px; background-color: #FFF3CD; border: 1px solid #FFE69C; border-radius: 8px; margin-bottom: 24px;">
-                <p style="font-family: 'Inter', sans-serif; font-size: 16px; color: #856404; margin: 0;">承認待ちのため修正はできません。</p>
-            </div>
+    .attendance-detail-wrapper {
+        max-width: 920px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .attendance-detail-header {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .attendance-detail-vertical-line {
+        width: 8px;
+        height: 40px;
+        background: #000000;
+        border-radius: 99px;
+    }
+
+    .attendance-detail-header h2 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: clamp(22px, 3vw, 30px);
+        letter-spacing: 0.08em;
+    }
+
+    .attendance-detail-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: clamp(24px, 4vw, 56px);
+        --value-column-width: clamp(120px, 14vw, 160px);
+        --value-column-gap: clamp(16px, 3.5vw, 48px);
+    }
+
+    .attendance-detail-form,
+    .attendance-detail-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .attendance-detail-row {
+        padding: clamp(16px, 3vw, 28px) 0;
+        border-bottom: 1px solid #E3E3E3;
+    }
+
+    .attendance-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .attendance-detail-row-content {
+        display: grid;
+        grid-template-columns: minmax(120px, 180px) 1fr;
+        column-gap: clamp(16px, 4vw, 64px);
+        align-items: center;
+    }
+
+    .attendance-detail-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.15em;
+        color: #737373;
+        white-space: nowrap;
+    }
+
+    .attendance-detail-value {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.15em;
+        color: #000000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .attendance-detail-date-group {
+        display: grid;
+        grid-template-columns: var(--value-column-width) minmax(20px, max-content) var(--value-column-width);
+        column-gap: var(--value-column-gap);
+        row-gap: 8px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .attendance-detail-date-group span:nth-child(1) {
+        grid-column: 1;
+    }
+
+    .attendance-detail-date-group span:nth-child(2) {
+        grid-column: 3;
+    }
+
+    .attendance-detail-time-group,
+    .attendance-detail-break-item {
+        display: grid;
+        grid-template-columns: var(--value-column-width) minmax(20px, max-content) var(--value-column-width);
+        column-gap: var(--value-column-gap);
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .attendance-detail-time-input,
+    .attendance-detail-time-display {
+        width: 100%;
+        height: 40px;
+        border-radius: 6px;
+        border: 1px solid #E1E1E1;
+        padding: 0 16px;
+        background: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.15em;
+        color: #000000;
+    }
+
+    .attendance-detail-time-display {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        background: #F9F9F9;
+    }
+
+    .attendance-detail-time-input::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+
+    .attendance-detail-time-input::-webkit-inner-spin-button,
+    .attendance-detail-time-input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .attendance-detail-time-separator {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.15em;
+        color: #000000;
+        text-align: center;
+    }
+
+    .attendance-detail-break-group {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .attendance-detail-notes-input,
+    .attendance-detail-notes-display {
+        width: min(100%, 360px);
+        min-height: 72px;
+        border-radius: 6px;
+        border: 1px solid #D9D9D9;
+        padding: 12px 16px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        line-height: 1.6;
+        resize: none;
+        background: #FFFFFF;
+    }
+
+    .attendance-detail-notes-display {
+        border: 1px solid #F0F0F0;
+        background: #F9F9F9;
+    }
+
+    .attendance-detail-error {
+        font-size: 14px;
+        color: #D93025;
+        letter-spacing: normal;
+    }
+
+    .attendance-detail-action {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: clamp(24px, 4vw, 40px);
+    }
+
+    .attendance-detail-submit-button {
+        width: 150px;
+        height: 52px;
+        border-radius: 6px;
+        border: none;
+        background: #000000;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: 0.15em;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .attendance-detail-submit-button:hover {
+        opacity: 0.85;
+    }
+
+    @media (max-width: 768px) {
+        .attendance-detail-container {
+            padding: 24px 16px 64px;
+        }
+
+        .attendance-detail-row-content {
+            grid-template-columns: 1fr;
+            row-gap: 12px;
+        }
+
+        .attendance-detail-label {
+            white-space: normal;
+        }
+
+        .attendance-detail-date-group {
+            grid-template-columns: 1fr;
+            column-gap: 0;
+        }
+
+        .attendance-detail-date-group span:nth-child(1),
+        .attendance-detail-date-group span:nth-child(2) {
+            grid-column: auto;
+        }
+
+        .attendance-detail-time-group,
+        .attendance-detail-break-item {
+            grid-template-columns: 1fr auto 1fr;
+            column-gap: 12px;
+            row-gap: 8px;
+        }
+
+        .attendance-detail-time-input,
+        .attendance-detail-time-display {
+            width: 100%;
+        }
+
+        .attendance-detail-action {
+            justify-content: stretch;
+        }
+
+        .attendance-detail-submit-button {
+            width: 100%;
+        }
+    }
+</style>
+@endsection
+
+@section('content')
+@php
+    $isEditable = !$hasPendingRequest;
+@endphp
+<div class="attendance-detail-container">
+    <div class="attendance-detail-wrapper">
+        <div class="attendance-detail-header">
+            <span class="attendance-detail-vertical-line" aria-hidden="true"></span>
+            <h2>勤怠詳細</h2>
+        </div>
+
+        @if($isEditable)
+            <form id="attendance-detail-form" method="POST" action="{{ route('attendance.request-correction', $record->id) }}" class="attendance-detail-form">
+                @csrf
         @endif
 
-        <!-- 基本情報 -->
-        <div style="margin-bottom: 32px;">
-            <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">基本情報</h3>
-            <div style="display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 16px; background-color: #F9F9F9; border-radius: 8px;">
-                <div style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; color: #000000;">名前</div>
-                <div style="font-family: 'Inter', sans-serif; font-size: 16px; color: #000000;">{{ $record->user->name }}</div>
+        <div class="attendance-detail-card">
+            <div class="attendance-detail-rows">
+                <div class="attendance-detail-row">
+                    <div class="attendance-detail-row-content">
+                        <div class="attendance-detail-label">名前</div>
+                        <div class="attendance-detail-value">{{ $record->user->name }}</div>
+                    </div>
+                </div>
 
-                <div style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; color: #000000;">日付</div>
-                <div style="font-family: 'Inter', sans-serif; font-size: 16px; color: #000000;">{{ $record->date->format('Y年m月d日') }}</div>
+                <div class="attendance-detail-row">
+                    <div class="attendance-detail-row-content">
+                        <div class="attendance-detail-label">日付</div>
+                        <div class="attendance-detail-value">
+                            <div class="attendance-detail-date-group">
+                                <span>{{ $record->date->format('Y年') }}</span>
+                                <span>{{ $record->date->format('n月j日') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attendance-detail-row">
+                    <div class="attendance-detail-row-content">
+                        <div class="attendance-detail-label">出勤・退勤</div>
+                        <div class="attendance-detail-value">
+                            <div class="attendance-detail-time-group">
+                                @if($isEditable)
+                                    <input type="time" name="clock_in" value="{{ old('clock_in', $record->clock_in ? substr($record->clock_in, 0, 5) : '') }}" required class="attendance-detail-time-input">
+                                    <span class="attendance-detail-time-separator">〜</span>
+                                    <input type="time" name="clock_out" value="{{ old('clock_out', $record->clock_out ? substr($record->clock_out, 0, 5) : '') }}" class="attendance-detail-time-input">
+                                @else
+                                    <span class="attendance-detail-time-display">{{ $record->clock_in ? substr($record->clock_in, 0, 5) : '-' }}</span>
+                                    <span class="attendance-detail-time-separator">〜</span>
+                                    <span class="attendance-detail-time-display">{{ $record->clock_out ? substr($record->clock_out, 0, 5) : '-' }}</span>
+                                @endif
+                            </div>
+                            @error('clock_in')
+                                <p class="attendance-detail-error">{{ $message }}</p>
+                            @enderror
+                            @error('clock_out')
+                                <p class="attendance-detail-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attendance-detail-row">
+                    <div class="attendance-detail-row-content">
+                        <div class="attendance-detail-label">休憩</div>
+                        <div class="attendance-detail-value">
+                            <div class="attendance-detail-break-group">
+                                @if($isEditable)
+                                    @if($record->breaks->count() > 0)
+                                        @foreach($record->breaks as $index => $break)
+                                            <div class="attendance-detail-break-item">
+                                                <input type="time" name="break_starts[]" value="{{ old('break_starts.'.$index, $break->break_start ? substr($break->break_start, 0, 5) : '') }}" class="attendance-detail-time-input">
+                                                <span class="attendance-detail-time-separator">〜</span>
+                                                <input type="time" name="break_ends[]" value="{{ old('break_ends.'.$index, $break->break_end ? substr($break->break_end, 0, 5) : '') }}" class="attendance-detail-time-input">
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                    @php
+                                        $nextIndex = $record->breaks->count() ?? 0;
+                                    @endphp
+                                    <div class="attendance-detail-break-item">
+                                        <input type="time" name="break_starts[]" value="{{ old('break_starts.'.$nextIndex, '') }}" class="attendance-detail-time-input">
+                                        <span class="attendance-detail-time-separator">〜</span>
+                                        <input type="time" name="break_ends[]" value="{{ old('break_ends.'.$nextIndex, '') }}" class="attendance-detail-time-input">
+                                    </div>
+                                @else
+                                    @if($record->breaks->count() > 0)
+                                        @foreach($record->breaks as $break)
+                                            <div class="attendance-detail-break-item">
+                                                <span class="attendance-detail-time-display">{{ $break->break_start ? substr($break->break_start, 0, 5) : '-' }}</span>
+                                                <span class="attendance-detail-time-separator">〜</span>
+                                                <span class="attendance-detail-time-display">{{ $break->break_end ? substr($break->break_end, 0, 5) : '-' }}</span>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span>-</span>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($isEditable)
+                    <div class="attendance-detail-row">
+                        <div class="attendance-detail-row-content">
+                            <div class="attendance-detail-label">休憩2</div>
+                            <div class="attendance-detail-value">
+                                <div class="attendance-detail-break-item">
+                                    <input type="time" name="break_starts[]" value="" class="attendance-detail-time-input">
+                                    <span class="attendance-detail-time-separator">〜</span>
+                                    <input type="time" name="break_ends[]" value="" class="attendance-detail-time-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="attendance-detail-row">
+                    <div class="attendance-detail-row-content">
+                        <div class="attendance-detail-label">備考</div>
+                        <div class="attendance-detail-value">
+                            @if($isEditable)
+                                <textarea name="notes" class="attendance-detail-notes-input" required>{{ old('notes', $record->notes ?? '') }}</textarea>
+                                @error('notes')
+                                    <p class="attendance-detail-error">{{ $message }}</p>
+                                @enderror
+                            @else
+                                <div class="attendance-detail-notes-display">{{ $record->notes ?? '-' }}</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 修正申請フォーム -->
-        @if(!$hasPendingRequest)
-            <form method="POST" action="{{ route('attendance.request-correction', $record->id) }}" style="margin-bottom: 32px;">
-                @csrf
-
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">出勤・退勤</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                    <div>
-                        <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">出勤時刻</label>
-                        <input type="time" name="clock_in" value="{{ old('clock_in', $record->clock_in) }}" required style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                        @error('clock_in')
-                            <p style="color: #DC3545; font-size: 14px; margin-top: 4px;">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">退勤時刻</label>
-                        <input type="time" name="clock_out" value="{{ old('clock_out', $record->clock_out) }}" style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                        @error('clock_out')
-                            <p style="color: #DC3545; font-size: 14px; margin-top: 4px;">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">休憩</h3>
-                <div id="breaks-container" style="margin-bottom: 24px;">
-                    @if($record->breaks->count() > 0)
-                        @foreach($record->breaks as $index => $break)
-                            <div class="break-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; margin-bottom: 16px; align-items: end;">
-                                <div>
-                                    <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩開始</label>
-                                    <input type="time" name="break_starts[]" value="{{ old('break_starts.'.$index, $break->break_start) }}" style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                                </div>
-                                <div>
-                                    <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩終了</label>
-                                    <input type="time" name="break_ends[]" value="{{ old('break_ends.'.$index, $break->break_end) }}" style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
-                    <!-- 追加用の空行 -->
-                    <div class="break-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: end;">
-                        <div>
-                            <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩開始</label>
-                            <input type="time" name="break_starts[]" style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩終了</label>
-                            <input type="time" name="break_ends[]" style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">
-                        </div>
-                    </div>
-                </div>
-
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">備考</h3>
-                <div style="margin-bottom: 24px;">
-                    <textarea name="notes" required style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px; min-height: 120px;">{{ old('notes', $record->notes) }}</textarea>
-                    @error('notes')
-                        <p style="color: #DC3545; font-size: 14px; margin-top: 4px;">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div style="display: flex; gap: 16px;">
-                    <button type="submit" style="padding: 12px 32px; background-color: #000000; color: #FFFFFF; border: none; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px;">修正申請</button>
-                    <a href="{{ route('attendance.list') }}" style="padding: 12px 32px; background-color: #E0E0E0; color: #000000; text-decoration: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; display: inline-block;">戻る</a>
-                </div>
-            </form>
-        @else
-            <!-- 承認待ちの場合、表示のみ -->
-            <div style="margin-bottom: 32px;">
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">出勤・退勤</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                    <div>
-                        <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">出勤時刻</label>
-                        <div style="padding: 12px; background-color: #F9F9F9; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">{{ $record->clock_in ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">退勤時刻</label>
-                        <div style="padding: 12px; background-color: #F9F9F9; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">{{ $record->clock_out ?? '-' }}</div>
-                    </div>
-                </div>
-
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">休憩</h3>
-                @if($record->breaks->count() > 0)
-                    @foreach($record->breaks as $break)
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                            <div>
-                                <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩開始</label>
-                                <div style="padding: 12px; background-color: #F9F9F9; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">{{ $break->break_start ?? '-' }}</div>
-                            </div>
-                            <div>
-                                <label style="display: block; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #000000;">休憩終了</label>
-                                <div style="padding: 12px; background-color: #F9F9F9; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px;">{{ $break->break_end ?? '-' }}</div>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <p style="font-family: 'Inter', sans-serif; font-size: 16px; color: #696969;">休憩記録がありません。</p>
-                @endif
-
-                <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 16px; color: #000000;">備考</h3>
-                <div style="padding: 12px; background-color: #F9F9F9; border: 2px solid #E0E0E0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 16px; min-height: 120px;">{{ $record->notes ?? '-' }}</div>
-
-                <div style="margin-top: 24px;">
-                    <a href="{{ route('attendance.list') }}" style="padding: 12px 32px; background-color: #E0E0E0; color: #000000; text-decoration: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; display: inline-block;">戻る</a>
-                </div>
+        @if($isEditable)
+                </form>
+            <div class="attendance-detail-action">
+                <button type="submit" form="attendance-detail-form" class="attendance-detail-submit-button">修正</button>
             </div>
         @endif
     </div>
 </div>
 @endsection
-
