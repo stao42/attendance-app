@@ -77,4 +77,3 @@ Route::post('/register', [RegisterController::class, 'register']);
 - ✅ 会員登録処理
 - ✅ 打刻画面へのリダイレクト
 - ✅ ログイン画面へのリンク
-

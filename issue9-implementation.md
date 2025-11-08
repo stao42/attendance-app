@@ -83,4 +83,3 @@ Route::post('/login', [LoginController::class, 'login']);
 - ✅ ログイン処理
 - ✅ 打刻画面へのリダイレクト
 - ✅ 会員登録画面へのリンク
-

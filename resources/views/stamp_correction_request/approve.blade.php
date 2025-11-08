@@ -56,7 +56,7 @@
                     @csrf
                     <div style="display: flex; gap: 16px;">
                         <button type="submit" style="padding: 12px 32px; background-color: #000000; color: #FFFFFF; border: none; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px;">承認</button>
-                        <a href="{{ route('admin.stamp_correction_request.list') }}" style="padding: 12px 32px; background-color: #E0E0E0; color: #000000; text-decoration: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; display: inline-block;">戻る</a>
+                        <a href="{{ route('stamp_correction_request.list') }}" style="padding: 12px 32px; background-color: #E0E0E0; color: #000000; text-decoration: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; display: inline-block;">戻る</a>
                     </div>
                 </form>
         @else

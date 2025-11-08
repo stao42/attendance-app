@@ -50,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/detail/{id}', [AttendanceController::class, 'detail'])->name('attendance.detail');
     Route::post('/attendance/detail/{id}/request-correction', [AttendanceController::class, 'requestCorrection'])->name('attendance.request-correction');
 
-    // 申請一覧画面（PG06）
+    // 申請一覧画面（PG06: 一般ユーザー、PG12: 管理者）- 同じパスを使用
     Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'list'])->name('stamp_correction_request.list');
 });
 
@@ -69,11 +69,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         // スタッフ別勤怠一覧画面（PG11）
         Route::get('/attendance/staff/{id}', [AdminController::class, 'staffAttendanceList'])->name('attendance.staff');
         Route::get('/attendance/staff/{id}/csv', [AdminController::class, 'staffAttendanceCsv'])->name('attendance.staff.csv');
+});
 
-        // 申請一覧画面（PG12）
-        Route::get('/stamp_correction_request/list', [StampCorrectionRequestController::class, 'adminList'])->name('stamp_correction_request.list');
-
+// 認証が必要なルート（管理者 - PG13は一般ユーザーと同じパスを使用）
+// コントローラー内で管理者権限をチェック
+Route::middleware(['auth'])->group(function () {
         // 修正申請承認画面（PG13）
-        Route::get('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'approveDetail'])->name('stamp_correction_request.approve.detail');
-        Route::post('/stamp_correction_request/approve/{id}', [StampCorrectionRequestController::class, 'approve'])->name('stamp_correction_request.approve');
+        Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approveDetail'])->name('admin.stamp_correction_request.approve.detail');
+        Route::post('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approve'])->name('admin.stamp_correction_request.approve');
 });

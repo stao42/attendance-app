@@ -13,16 +13,13 @@ use Illuminate\Support\Facades\Response;
 class AdminController extends Controller
 {
     /**
-     * 管理者のみアクセス可能にするミドルウェア
+     * 管理者権限をチェック
      */
-    public function __construct()
+    private function checkAdmin()
     {
-        $this->middleware(function ($request, $next) {
-            if (!Auth::check() || !Auth::user()->is_admin) {
-                abort(403, 'このページにアクセスする権限がありません。');
-            }
-            return $next($request);
-        });
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            abort(403, 'このページにアクセスする権限がありません。');
+        }
     }
 
     /**
@@ -30,6 +27,7 @@ class AdminController extends Controller
      */
     public function index()
     {
+        $this->checkAdmin();
         $today = Carbon::today();
 
         $stats = [
@@ -56,6 +54,7 @@ class AdminController extends Controller
      */
     public function attendanceList(Request $request)
     {
+        $this->checkAdmin();
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
 
         $records = AttendanceRecord::with('user')
@@ -74,6 +73,7 @@ class AdminController extends Controller
      */
     public function attendanceDetail($id)
     {
+        $this->checkAdmin();
         $record = AttendanceRecord::with(['user', 'breaks', 'stampCorrectionRequests'])
             ->findOrFail($id);
 
@@ -87,6 +87,7 @@ class AdminController extends Controller
      */
     public function updateAttendance(Request $request, $id)
     {
+        $this->checkAdmin();
         $record = AttendanceRecord::with('stampCorrectionRequests')
             ->findOrFail($id);
 
@@ -163,6 +164,7 @@ class AdminController extends Controller
      */
     public function staffList()
     {
+        $this->checkAdmin();
         $users = User::where('is_admin', false)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -175,6 +177,7 @@ class AdminController extends Controller
      */
     public function staffAttendanceList($id, Request $request)
     {
+        $this->checkAdmin();
         $user = User::findOrFail($id);
         $month = $request->input('month', Carbon::now()->format('Y-m'));
 
@@ -195,6 +198,7 @@ class AdminController extends Controller
      */
     public function staffAttendanceCsv($id, Request $request)
     {
+        $this->checkAdmin();
         $user = User::findOrFail($id);
         $month = $request->input('month', Carbon::now()->format('Y-m'));
 
@@ -250,6 +254,7 @@ class AdminController extends Controller
      */
     public function users()
     {
+        $this->checkAdmin();
         $users = User::withCount('attendanceRecords')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -262,6 +267,7 @@ class AdminController extends Controller
      */
     public function userAttendance($userId, Request $request)
     {
+        $this->checkAdmin();
         $user = User::findOrFail($userId);
         $month = $request->input('month', Carbon::now()->format('Y-m'));
 
@@ -279,6 +285,7 @@ class AdminController extends Controller
      */
     public function attendanceStatus(Request $request)
     {
+        $this->checkAdmin();
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
 
         $records = AttendanceRecord::with('user')
