@@ -77,4 +77,5 @@ Route::middleware(['auth'])->group(function () {
         // 修正申請承認画面（PG13）
         Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approveDetail'])->name('admin.stamp_correction_request.approve.detail');
         Route::post('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approve'])->name('admin.stamp_correction_request.approve');
+        Route::post('/stamp_correction_request/reject/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'reject'])->name('admin.stamp_correction_request.reject');
 });
