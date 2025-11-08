@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceRecord;
 use App\Models\BreakRecord;
 use App\Models\StampCorrectionRequest;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
