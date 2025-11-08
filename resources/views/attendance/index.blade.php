@@ -9,6 +9,9 @@
         background-color: #F0EFF2;
         padding: 80px 25px 40px;
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .attendance-container {
@@ -19,12 +22,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
 
     .status-badge {
-        position: absolute;
-        top: 209px;
-        right: calc(50% - 700px);
         width: 100px;
         height: 40px;
         background-color: #C8C8C8;
@@ -32,6 +33,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 0 auto 32px;
     }
 
     .status-badge span {
@@ -43,7 +45,7 @@
     }
 
     .date-display {
-        margin-top: 161px;
+        margin-top: 0;
         margin-bottom: 32px;
         text-align: center;
     }
@@ -126,11 +128,6 @@
         font-size: 32px;
     }
 
-    @media (max-width: 1540px) {
-        .status-badge {
-            right: calc(50% - min(700px, 45vw));
-        }
-    }
 
     @media (max-width: 768px) {
         .attendance-page {
@@ -156,9 +153,6 @@
         }
 
         .status-badge {
-            position: relative;
-            top: 0;
-            right: 0;
             margin: 0 auto 20px;
         }
     }
