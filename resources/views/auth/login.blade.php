@@ -74,6 +74,7 @@
         line-height: 1.21;
         color: #000000;
         margin-bottom: 45px;
+        text-align: center;
     }
 
     .auth-form-group {
