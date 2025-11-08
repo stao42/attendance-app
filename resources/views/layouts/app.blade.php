@@ -40,17 +40,18 @@
             margin: 0 auto;
             display: flex;
             align-items: center;
-            position: relative;
+            justify-content: space-between;
             height: 100%;
+            padding: 0 25px;
+            position: relative;
         }
 
         .header-logo {
-            position: absolute;
-            left: 25px;
-            top: 50%;
-            transform: translateY(-50%);
             display: flex;
             align-items: center;
+            flex-shrink: 0;
+            position: absolute;
+            left: 25px;
         }
 
         .header-logo img {
@@ -67,13 +68,12 @@
         }
 
         .header-nav {
-            position: absolute;
-            right: 25px;
-            top: 50%;
-            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 0;
+            flex-shrink: 0;
+            position: absolute;
+            right: 25px;
         }
 
         .header-nav a, .header-nav form button {
@@ -92,23 +92,39 @@
             white-space: nowrap;
         }
 
-        .header-nav a:nth-child(1) {
-            width: 48px;
+        .header-nav a {
             margin-right: 41px;
         }
 
-        .header-nav a:nth-child(2) {
-            width: 96px;
-            margin-right: 41px;
-        }
-
-        .header-nav a:nth-child(3) {
-            width: 48px;
+        .header-nav a:last-of-type {
             margin-right: 53px;
+        }
+
+        .header-nav form {
+            display: inline;
+            margin: 0;
         }
 
         .header-nav form button {
             width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 16px;
+            }
+
+            .header-nav a, .header-nav form button {
+                font-size: 18px;
+            }
+
+            .header-nav a {
+                margin-right: 20px;
+            }
+
+            .header-nav a:last-of-type {
+                margin-right: 20px;
+            }
         }
 
         .header-nav a:hover, .header-nav form button:hover {
