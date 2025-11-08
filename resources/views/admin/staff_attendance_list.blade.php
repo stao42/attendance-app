@@ -32,7 +32,7 @@
         flex-shrink: 0;
     }
 
-    .admin-staff-attendance-list-title h2 {
+    .admin-staff-attendance-list-title h1 {
         margin: 0;
         padding: 0;
         font-family: 'Inter', sans-serif;
@@ -309,7 +309,7 @@
             margin-bottom: 40px;
         }
 
-        .admin-staff-attendance-list-title h2 {
+        .admin-staff-attendance-list-title h1 {
             font-size: 24px;
             line-height: 28px;
         }
@@ -349,7 +349,7 @@
             margin-bottom: 32px;
         }
 
-        .admin-staff-attendance-list-title h2 {
+        .admin-staff-attendance-list-title h1 {
             font-size: 20px;
             line-height: 24px;
         }
@@ -400,7 +400,7 @@
             gap: 12px;
         }
 
-        .admin-staff-attendance-list-title h2 {
+        .admin-staff-attendance-list-title h1 {
             font-size: 18px;
             line-height: 22px;
         }
@@ -440,7 +440,7 @@
         <div class="admin-staff-attendance-list-header">
             <div class="admin-staff-attendance-list-vertical-line"></div>
             <div class="admin-staff-attendance-list-title">
-                <h2>{{ $user->name }}さんの勤怠</h2>
+                <h1>{{ $user->name }}さんの勤怠</h1>
             </div>
         </div>
 

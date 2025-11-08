@@ -196,7 +196,7 @@
     <!-- 会員登録フォーム -->
     <div class="auth-container">
         <div class="auth-form-wrapper">
-            <h2 class="auth-title">会員登録</h2>
+            <h1 class="auth-title">会員登録</h1>
 
             <form method="POST" action="{{ route('register') }}" novalidate>
                 @csrf

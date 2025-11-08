@@ -31,7 +31,7 @@
         border-radius: 99px;
     }
 
-    .admin-approve-title h2 {
+    .admin-approve-title h1 {
         margin: 0;
         padding: 0;
         font-family: 'Inter', sans-serif;
@@ -257,7 +257,7 @@
         <div class="admin-approve-header">
             <div class="admin-approve-vertical-line"></div>
             <div class="admin-approve-title">
-                <h2>勤怠詳細</h2>
+                <h1>勤怠詳細</h1>
             </div>
         </div>
 

@@ -176,7 +176,7 @@
     <!-- 管理者ログインフォーム -->
     <div class="auth-container">
         <div class="auth-form-wrapper">
-            <h2 class="auth-title">管理者ログイン</h2>
+            <h1 class="auth-title">管理者ログイン</h1>
 
             <form method="POST" action="{{ route('admin.login') }}" novalidate>
                 @csrf
