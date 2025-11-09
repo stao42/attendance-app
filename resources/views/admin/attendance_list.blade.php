@@ -199,7 +199,7 @@
 
     .admin-attendance-list-table-header-item.detail-col {
         text-align: right;
-        padding-right: 0;
+        padding-right: 36px;
         width: 35px;
     }
 
@@ -257,7 +257,7 @@
 
     .admin-attendance-list-table-cell.detail-col {
         text-align: right;
-        padding-right: 0;
+        padding-right: 36px;
         width: 35px;
     }
 

@@ -166,7 +166,7 @@
 
     .stamp-correction-request-list-table-header-item.detail-col {
         text-align: right;
-        padding-right: 0;
+        padding-right: 36px;
         width: 35px;
     }
 
@@ -220,7 +220,7 @@
 
     .stamp-correction-request-list-table-cell.detail-col {
         text-align: right;
-        padding-right: 0;
+        padding-right: 36px;
         width: 35px;
     }
 
