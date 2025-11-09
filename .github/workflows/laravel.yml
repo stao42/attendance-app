@@ -9,20 +9,23 @@ on:
 jobs:
   laravel-tests:
     runs-on: ubuntu-latest
+
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: attendance_test
-        ports: ['3306:3306']
+        ports:
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
 
     env:
+      APP_ENV: testing
       DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -32,12 +35,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, pdo_mysql
-      - run: cp .env.example .env
-      - run: composer install --prefer-dist --no-progress --no-suggest
-      - run: php artisan key:generate
-      - run: php artisan migrate --force
-      - run: phpunit
+          coverage: none
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Directory permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run PHPUnit
+        run: ./vendor/bin/phpunit
