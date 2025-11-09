@@ -163,8 +163,12 @@ docker compose exec app php artisan key:generate
 6. **データベースのマイグレーション**
 
 ```bash
+# 本番用データベース (coachtech)
 docker compose exec app php artisan migrate
 ```
+
+- Docker の MySQL サービスには初期化スクリプト（`docker/mysql/initdb.d/attendance_test.sql`）を配置しており、
+  コンテナ起動時にテスト用DB `attendance_test` も自動作成されます。
 
 7. **シーダーの実行（テストデータ作成）**
 
@@ -190,6 +194,28 @@ docker compose exec app php artisan db:seed
 
 - **アプリケーション**: http://localhost:8000
 - **phpMyAdmin**: http://localhost:8080（設定されている場合）
+
+### テストの実行
+
+PHPUnit は MySQL（ホスト名 `db`）上の `attendance_test` データベースを使用します。
+
+1. **テスト用データベースを最新化**
+
+```bash
+docker compose exec app bash -lc "cd /var/www/html && \
+DB_CONNECTION=mysql DB_HOST=db DB_PORT=3306 \
+DB_DATABASE=attendance_test DB_USERNAME=root DB_PASSWORD=root \
+php artisan migrate --force"
+```
+
+2. **PHPUnit を実行**
+
+```bash
+docker compose exec app bash -lc "cd /var/www/html && ./vendor/bin/phpunit"
+```
+
+※ すべての開発者が同じ Docker/MySQL でテストを再現できるよう、
+`phpunit.xml` にも上記の接続情報を記載しています。
 
 ## 画面一覧
 

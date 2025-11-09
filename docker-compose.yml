@@ -30,6 +30,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - db_data:/var/lib/mysql
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d:ro
     networks:
       - coachtech_network
 
