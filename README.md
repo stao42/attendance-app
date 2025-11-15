@@ -209,7 +209,30 @@ PHPUnit は MySQL（ホスト名 `db`）上の `attendance_test` データベー
 
 `phpunit.xml` にテスト用データベース設定が記載されており、自動的に `attendance_test` データベースが使用されます。
 
-1. **テスト用データベースを最新化**
+**テストの実行（推奨）**
+
+以下の1つのコマンドで、依存関係のインストール、データベースのマイグレーション、テストの実行をまとめて行います：
+
+```bash
+docker compose exec app bash -lc "cd /var/www/html && \
+composer install && \
+DB_CONNECTION=mysql DB_HOST=db DB_PORT=3306 \
+DB_DATABASE=attendance_test DB_USERNAME=root DB_PASSWORD=root \
+php artisan migrate --force && \
+vendor/bin/phpunit"
+```
+
+**個別に実行する場合**
+
+必要に応じて、以下のコマンドを個別に実行することもできます：
+
+1. **開発依存関係のインストール**
+
+```bash
+docker compose exec app bash -lc "cd /var/www/html && composer install"
+```
+
+2. **テスト用データベースを最新化**
 
 ```bash
 docker compose exec app bash -lc "cd /var/www/html && \
@@ -218,18 +241,9 @@ DB_DATABASE=attendance_test DB_USERNAME=root DB_PASSWORD=root \
 php artisan migrate --force"
 ```
 
-2. **開発依存関係のインストール（初回のみ）**
-
-テストを実行するには、PHPUnitを含む開発依存関係が必要です：
-
-```bash
-docker compose exec app bash -lc "cd /var/www/html && composer install"
-```
-
 3. **PHPUnit を実行**
 
 ```bash
-# vendor/bin/phpunit を直接実行（推奨）
 docker compose exec app bash -lc "cd /var/www/html && vendor/bin/phpunit"
 ```
 
@@ -663,42 +677,6 @@ docker compose exec app php artisan route:clear
 # データベースをリセット
 docker compose exec app php artisan migrate:fresh --seed
 ```
-
-## 実装済み機能
-
-### ✅ 認証機能
-- 会員登録、ログイン、ログアウト（一般ユーザー・管理者）
-- メール認証（会員登録・初回ログイン時に必須）
-- 認証メール再送機能
-- 管理者権限チェック
-- セッション管理
-
-### ✅ 打刻機能
-- 出勤/退勤/休憩開始/休憩終了
-- ステータス管理（勤務外/出勤中/休憩中/退勤済）
-- リアルタイム時刻表示
-
-### ✅ 勤怠管理
-- 勤怠一覧表示（月別・日付別）
-- 勤怠詳細表示・編集
-- 勤務時間の自動計算
-
-### ✅ 修正申請機能
-- 修正申請の送信
-- 申請一覧表示（承認待ち/承認済み）
-- 申請承認/却下
-- トランザクション処理
-
-### ✅ 管理者機能
-- スタッフ一覧
-- スタッフ別勤怠一覧
-- CSVエクスポート
-
-### ✅ UI/UX
-- Figmaデザイン準拠
-- レスポンシブデザイン
-- エラーメッセージ表示
-- 成功メッセージ表示
 
 ## ライセンス
 
