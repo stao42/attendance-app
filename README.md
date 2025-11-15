@@ -141,33 +141,6 @@ DB_USERNAME=root
 DB_PASSWORD=root
 ```
 
-**本番環境での設定：**
-
-```env
-# データベース設定（本番環境）
-DB_CONNECTION=mysql
-DB_HOST=your-db-host
-DB_PORT=3306
-DB_DATABASE=your-database-name
-DB_USERNAME=your-db-username        # 適切なデータベースユーザー名を設定
-DB_PASSWORD=your-secure-password    # 強力なパスワードを設定
-```
-
-**その他の設定項目：**
-
-`.env.example`には以下の設定が含まれていますが、開発環境ではデフォルト値で動作します：
-
-- `APP_NAME`: アプリケーション名（デフォルト: Laravel）
-- `APP_ENV`: 環境（開発環境: local、本番環境: production）
-- `APP_KEY`: アプリケーションキー（手順5で自動生成）
-- `APP_DEBUG`: デバッグモード（開発環境: true、本番環境: false）
-- `APP_URL`: アプリケーションのURL（デフォルト: http://localhost:8000）
-- `MAIL_*`: メール設定（開発環境ではMailHog用の設定が含まれています）
-
-**重要**:
-- `.env`ファイルには機密情報（パスワードなど）が含まれるため、Gitにコミットしないでください
-- `.env.example`にはパスワードなどの機密情報は含まれていません。実際の値は`.env`ファイルに設定してください
-- 本番環境では、必ず`DB_USERNAME`と`DB_PASSWORD`を適切な値に変更してください
 - `APP_KEY`は手順5で自動生成されます
 
 3. **Dockerコンテナのビルドと起動**
@@ -245,15 +218,22 @@ DB_DATABASE=attendance_test DB_USERNAME=root DB_PASSWORD=root \
 php artisan migrate --force"
 ```
 
-2. **PHPUnit を実行**
+2. **開発依存関係のインストール（初回のみ）**
+
+テストを実行するには、PHPUnitを含む開発依存関係が必要です：
 
 ```bash
-# 方法1: docker compose exec を使用
-docker compose exec app bash -lc "cd /var/www/html && ./vendor/bin/phpunit"
-
-# 方法2: artisan test コマンドを使用（推奨）
-docker compose exec app php artisan test
+docker compose exec app bash -lc "cd /var/www/html && composer install"
 ```
+
+3. **PHPUnit を実行**
+
+```bash
+# vendor/bin/phpunit を直接実行（推奨）
+docker compose exec app bash -lc "cd /var/www/html && vendor/bin/phpunit"
+```
+
+**注意**: `php artisan test`コマンドは利用できません。`vendor/bin/phpunit`を直接実行してください。
 
 **テスト構成**
 
