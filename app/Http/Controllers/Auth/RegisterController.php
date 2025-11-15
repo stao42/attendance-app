@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Fortify\CreateNewUser;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
@@ -20,23 +18,20 @@ class RegisterController extends Controller
     }
 
     /**
-     * 新規登録処理
+     * 新規登録処理（Fortify使用）
      */
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request, CreateNewUser $createNewUser)
     {
+        // RegisterRequestでバリデーション済みのデータを取得
         $validated = $request->validated();
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'is_admin' => false,
+        
+        // password_confirmationを追加（Fortifyのアクションが期待する形式）
+        $input = array_merge($validated, [
+            'password_confirmation' => $request->input('password_confirmation'),
         ]);
 
-        event(new Registered($user));
-
-        // メール認証通知を送信
-        $user->sendEmailVerificationNotification();
+        // FortifyのCreateNewUserアクションを使用
+        $user = $createNewUser->create($input);
 
         Auth::login($user);
 
