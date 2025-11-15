@@ -184,7 +184,7 @@
                 <!-- メールアドレス -->
                 <div class="auth-form-group">
                     <label for="email" class="auth-label">メールアドレス</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" class="auth-input">
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" class="auth-input @error('email') is-invalid @enderror" autocomplete="email">
                     @error('email')
                         <p class="auth-error">{{ $message }}</p>
                     @enderror
@@ -193,7 +193,7 @@
                 <!-- パスワード -->
                 <div class="auth-form-group">
                     <label for="password" class="auth-label">パスワード</label>
-                    <input type="password" id="password" name="password" class="auth-input">
+                    <input type="password" id="password" name="password" class="auth-input @error('password') is-invalid @enderror" autocomplete="current-password">
                     @error('password')
                         <p class="auth-error">{{ $message }}</p>
                     @enderror
