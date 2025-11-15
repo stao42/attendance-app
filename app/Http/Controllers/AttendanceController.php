@@ -257,6 +257,37 @@ class AttendanceController extends Controller
             if ($clockOut <= $clockIn) {
                 return redirect()->back()->withErrors(['clock_out' => '出勤時間もしくは退勤時間が不適切な値です']);
             }
+
+            // 休憩時間の妥当性チェック
+            if (isset($validated['break_starts']) && isset($validated['break_ends'])) {
+                foreach ($validated['break_starts'] as $index => $breakStart) {
+                    if ($breakStart && isset($validated['break_ends'][$index]) && $validated['break_ends'][$index]) {
+                        $breakStartTime = Carbon::createFromTimeString($breakStart);
+                        $breakEndTime = Carbon::createFromTimeString($validated['break_ends'][$index]);
+
+                        // 休憩開始時間が退勤時間より後の場合
+                        if ($breakStartTime >= $clockOut) {
+                            return redirect()->back()->withErrors([
+                                "break_starts.{$index}" => '休憩時間が不適切な値です'
+                            ]);
+                        }
+
+                        // 休憩終了時間が退勤時間より後の場合
+                        if ($breakEndTime > $clockOut) {
+                            return redirect()->back()->withErrors([
+                                "break_ends.{$index}" => '休憩時間もしくは退勤時間が不適切な値です'
+                            ]);
+                        }
+
+                        // 休憩開始時間が休憩終了時間より後の場合
+                        if ($breakEndTime <= $breakStartTime) {
+                            return redirect()->back()->withErrors([
+                                "break_ends.{$index}" => '休憩時間が不適切な値です'
+                            ]);
+                        }
+                    }
+                }
+            }
         }
 
         // 修正申請を作成

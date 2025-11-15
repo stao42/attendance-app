@@ -151,4 +151,50 @@ class CorrectionRequestTest extends TestCase
         $response->assertSee("/attendance/detail/{$record->id}");
         $response->assertSee('詳細');
     }
+
+    public function test_correction_request_requires_break_start_before_clock_out(): void
+    {
+        $user = User::factory()->create();
+        $record = AttendanceRecord::factory()->for($user)->create([
+            'date' => '2024-05-30',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from("/attendance/detail/{$record->id}")
+            ->post(route('attendance.request-correction', $record->id), [
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+                'notes' => '休憩時間を修正します',
+                'break_starts' => ['19:00'],
+                'break_ends' => ['19:30'],
+            ]);
+
+        $response->assertRedirect("/attendance/detail/{$record->id}");
+        $response->assertSessionHasErrors([
+            'break_starts.0' => '休憩時間が不適切な値です',
+        ]);
+    }
+
+    public function test_correction_request_requires_break_end_before_clock_out(): void
+    {
+        $user = User::factory()->create();
+        $record = AttendanceRecord::factory()->for($user)->create([
+            'date' => '2024-05-31',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->from("/attendance/detail/{$record->id}")
+            ->post(route('attendance.request-correction', $record->id), [
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+                'notes' => '休憩時間を修正します',
+                'break_starts' => ['12:00'],
+                'break_ends' => ['19:00'],
+            ]);
+
+        $response->assertRedirect("/attendance/detail/{$record->id}");
+        $response->assertSessionHasErrors([
+            'break_ends.0' => '休憩時間もしくは退勤時間が不適切な値です',
+        ]);
+    }
 }
