@@ -6,7 +6,7 @@ services:
     container_name: coachtech_app
     volumes:
       - ./:/var/www/html
-      - /var/www/html/vendor
+      - vendor_data:/var/www/html/vendor
     ports:
       - "8000:8000"
     depends_on:
@@ -19,6 +19,8 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=root
       - DB_CONNECTION=mysql
+      - APP_URL=http://localhost:8000
+      - MAIL_PREVIEW_URL=http://localhost:8025
     command: php artisan serve --host=0.0.0.0 --port=8000
 
   db:
@@ -63,3 +65,4 @@ networks:
 
 volumes:
   db_data:
+  vendor_data:

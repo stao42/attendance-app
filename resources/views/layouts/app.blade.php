@@ -54,11 +54,23 @@
             left: 25px;
         }
 
+        .header-logo a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         .header-logo img {
             width: 370px;
             height: 36px;
             display: block;
             max-width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .header-logo a:hover img {
+            opacity: 0.8;
         }
 
         @media (max-width: 1540px) {
@@ -256,7 +268,9 @@
     <div class="header">
         <div class="header-content">
             <div class="header-logo">
-                <img src="{{ asset('images/coachtech-logo.svg') }}" alt="CoachTech" style="width: 370px; height: 36px; display: block;">
+                <a href="{{ Auth::user()->is_admin ? route('admin.attendance.list') : route('attendance.index') }}">
+                    <img src="{{ asset('images/coachtech-logo.svg') }}" alt="CoachTech" style="width: 370px; height: 36px; display: block;">
+                </a>
             </div>
             <nav class="header-nav">
                 @if(Auth::user()->is_admin)

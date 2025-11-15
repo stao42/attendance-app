@@ -198,6 +198,12 @@
         <div class="auth-form-wrapper">
             <h1 class="auth-title">ログイン</h1>
 
+            @if(session('verified'))
+                <div style="padding: 12px; margin-bottom: 20px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; text-align: center;">
+                    {{ session('verified') }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
 

@@ -21,8 +21,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 # 作業ディレクトリの設定
 WORKDIR /var/www/html
 
-# ファイルのコピー
+# Composerの依存関係をインストール（キャッシュを活用するため先にコピー）
+# --no-scriptsでpost-installスクリプトをスキップ（Laravelの初期化は後で行う）
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-scripts
+
+# 残りのファイルのコピー
 COPY . /var/www/html
+
+# Composerのautoloadファイルを再生成（post-installスクリプトはスキップ）
+RUN composer dump-autoload --optimize --no-interaction || true
 
 # Entrypointスクリプトのコピー
 COPY docker-entrypoint.sh /usr/local/bin/
