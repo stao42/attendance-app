@@ -198,7 +198,7 @@ PHPUnit は MySQL（ホスト名 `db`）上の `attendance_test` データベー
 
 **テストの実行（推奨）**
 
-以下の1つのコマンドで、依存関係のインストール、データベースのマイグレーション、テストの実行をまとめて行います：
+以下の1つのコマンドで、依存関係のインストール、データベースのマイグレーション、テストの実行、開発用データベースへのシーダー実行をまとめて行います：
 
 ```bash
 docker compose exec app bash -lc "cd /var/www/html && \
@@ -206,8 +206,11 @@ composer install && \
 DB_CONNECTION=mysql DB_HOST=db DB_PORT=3306 \
 DB_DATABASE=attendance_test DB_USERNAME=root DB_PASSWORD=root \
 php artisan migrate --force && \
-vendor/bin/phpunit"
+vendor/bin/phpunit && \
+php artisan db:seed"
 ```
+
+**注意**: テスト実行後、自動的に開発用データベース（`coachtech`）にシーダーが実行され、`test@example.com` と `admin@example.com` でログインできるようになります。
 
 **個別に実行する場合**
 
