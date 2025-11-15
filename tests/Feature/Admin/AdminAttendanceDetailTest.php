@@ -116,4 +116,75 @@ class AdminAttendanceDetailTest extends TestCase
         $response->assertRedirect(route('admin.attendance.detail', $record->id));
         $response->assertSessionHas('error', '承認待ちのため修正はできません。');
     }
+
+    public function test_admin_update_attendance_validates_break_start_before_clock_out(): void
+    {
+        $admin = $this->createAdmin();
+        $record = AttendanceRecord::factory()->for(User::factory()->create())->create([
+            'date' => '2024-05-16',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.attendance.detail', $record->id))
+            ->post(route('admin.attendance.update', $record->id), [
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+                'notes' => 'テスト',
+                'break_starts' => ['19:00'],
+                'break_ends' => ['19:30'],
+            ]);
+
+        $response->assertRedirect(route('admin.attendance.detail', $record->id));
+        $response->assertSessionHasErrors([
+            'break_starts.0' => '休憩時間が不適切な値です',
+        ]);
+    }
+
+    public function test_admin_update_attendance_validates_break_end_before_clock_out(): void
+    {
+        $admin = $this->createAdmin();
+        $record = AttendanceRecord::factory()->for(User::factory()->create())->create([
+            'date' => '2024-05-17',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.attendance.detail', $record->id))
+            ->post(route('admin.attendance.update', $record->id), [
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+                'notes' => 'テスト',
+                'break_starts' => ['12:00'],
+                'break_ends' => ['19:00'],
+            ]);
+
+        $response->assertRedirect(route('admin.attendance.detail', $record->id));
+        $response->assertSessionHasErrors([
+            'break_ends.0' => '休憩時間もしくは退勤時間が不適切な値です',
+        ]);
+    }
+
+    public function test_admin_update_attendance_requires_notes(): void
+    {
+        $admin = $this->createAdmin();
+        $record = AttendanceRecord::factory()->for(User::factory()->create())->create([
+            'date' => '2024-05-18',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.attendance.detail', $record->id))
+            ->post(route('admin.attendance.update', $record->id), [
+                'clock_in' => '09:00',
+                'clock_out' => '18:00',
+                'notes' => '',
+            ]);
+
+        $response->assertRedirect(route('admin.attendance.detail', $record->id));
+        $response->assertSessionHasErrors([
+            'notes' => '備考を記入してください',
+        ]);
+    }
 }

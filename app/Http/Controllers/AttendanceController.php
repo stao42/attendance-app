@@ -247,6 +247,8 @@ class AttendanceController extends Controller
             'break_starts.*' => 'nullable|date_format:H:i',
             'break_ends' => 'nullable|array',
             'break_ends.*' => 'nullable|date_format:H:i',
+        ], [
+            'notes.required' => '備考を記入してください',
         ]);
 
         // 時刻の妥当性チェック
