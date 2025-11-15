@@ -121,24 +121,54 @@ cd attendance-app
 
 2. **`.env`ファイルの設定**
 
-既存の`.env`ファイルがある場合は、以下のデータベース設定を確認してください：
+`.env.example`ファイルをコピーして`.env`ファイルを作成します：
+
+```bash
+cp .env.example .env
+```
+
+`.env`ファイルを開き、以下の環境変数を設定してください：
+
+**開発環境（Docker）での設定：**
 
 ```env
+# データベース設定（Docker環境用）
 DB_CONNECTION=mysql
 DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=coachtech
 DB_USERNAME=root
 DB_PASSWORD=root
-
-MAIL_MAILER=smtp
-MAIL_HOST=mailhog
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_PREVIEW_URL=http://localhost:8025
 ```
+
+**本番環境での設定：**
+
+```env
+# データベース設定（本番環境）
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_PORT=3306
+DB_DATABASE=your-database-name
+DB_USERNAME=your-db-username        # 適切なデータベースユーザー名を設定
+DB_PASSWORD=your-secure-password    # 強力なパスワードを設定
+```
+
+**その他の設定項目：**
+
+`.env.example`には以下の設定が含まれていますが、開発環境ではデフォルト値で動作します：
+
+- `APP_NAME`: アプリケーション名（デフォルト: Laravel）
+- `APP_ENV`: 環境（開発環境: local、本番環境: production）
+- `APP_KEY`: アプリケーションキー（手順5で自動生成）
+- `APP_DEBUG`: デバッグモード（開発環境: true、本番環境: false）
+- `APP_URL`: アプリケーションのURL（デフォルト: http://localhost:8000）
+- `MAIL_*`: メール設定（開発環境ではMailHog用の設定が含まれています）
+
+**重要**:
+- `.env`ファイルには機密情報（パスワードなど）が含まれるため、Gitにコミットしないでください
+- `.env.example`にはパスワードなどの機密情報は含まれていません。実際の値は`.env`ファイルに設定してください
+- 本番環境では、必ず`DB_USERNAME`と`DB_PASSWORD`を適切な値に変更してください
+- `APP_KEY`は手順5で自動生成されます
 
 3. **Dockerコンテナのビルドと起動**
 
@@ -156,15 +186,15 @@ docker compose down
 docker rm coachtech_db coachtech_app coachtech_phpmyadmin
 ```
 
-4. **Composerパッケージのインストール**
+**自動セットアップ機能：**
 
-```bash
-docker compose run --rm app composer install
-```
+コンテナ起動時に`docker-entrypoint.sh`が自動的に以下を実行します：
+- `vendor`ディレクトリが存在しない場合、自動的に`composer install`を実行
+- ストレージディレクトリの権限を自動設定
 
-**注意**: `docker compose exec`ではなく`docker compose run --rm`を使用してください。コンテナが起動していない場合でも実行できます。
+そのため、手動で`composer install`を実行する必要はありません。
 
-5. **アプリケーションキーの生成**
+4. **アプリケーションキーの生成**
 
 ```bash
 docker compose exec app php artisan key:generate
@@ -569,6 +599,19 @@ Warning: require(/var/www/html/vendor/autoload.php): Failed to open stream
 
 **解決方法：**
 
+コンテナを再起動すると、`docker-entrypoint.sh`が自動的に`composer install`を実行します：
+
+```bash
+# コンテナを再起動
+docker compose restart app
+
+# または、コンテナを再ビルド
+docker compose down
+docker compose up -d --build
+```
+
+手動で実行する場合：
+
 ```bash
 # Composerパッケージをインストール
 docker compose run --rm app composer install
@@ -596,10 +639,13 @@ docker compose exec app php artisan key:generate
 ```env
 DB_CONNECTION=mysql
 DB_HOST=db
+DB_PORT=3306
 DB_DATABASE=coachtech
-DB_USERNAME=root
-DB_PASSWORD=root
+DB_USERNAME=root          # 本番環境では適切なユーザー名に変更
+DB_PASSWORD=              # 本番環境では強力なパスワードを設定
 ```
+
+**注意**: パスワードなどの機密情報は`.env`ファイルに記載し、Gitにコミットしないでください。
 
 ### 500エラーが発生する
 

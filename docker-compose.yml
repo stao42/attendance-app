@@ -6,6 +6,7 @@ services:
     container_name: coachtech_app
     volumes:
       - ./:/var/www/html
+      - /var/www/html/vendor
     ports:
       - "8000:8000"
     depends_on:

@@ -24,6 +24,10 @@ WORKDIR /var/www/html
 # ファイルのコピー
 COPY . /var/www/html
 
+# Entrypointスクリプトのコピー
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # 権限の設定
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
@@ -34,3 +38,6 @@ RUN chown -R www-data:www-data /var/www/html \
     && mkdir -p /var/www/html/storage/logs \
     && chmod -R 775 /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage
+
+# Entrypointを設定
+ENTRYPOINT ["docker-entrypoint.sh"]
