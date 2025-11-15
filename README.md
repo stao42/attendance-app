@@ -160,13 +160,13 @@ docker rm coachtech_db coachtech_app coachtech_phpmyadmin
 docker compose exec app php artisan key:generate
 ```
 
-6. **データベースのマイグレーションとシーダーの実行**
+5. **データベースのマイグレーションとシーダーの実行**
 
 ```bash
 docker compose exec app php artisan migrate:fresh --seed
 ```
 
-7. **シーダー実行後、以下のユーザーでログインできます**
+6. **シーダー実行後、以下のユーザーでログインできます**
 
 - **管理者ユーザー**
   - Email: `admin@example.com`
