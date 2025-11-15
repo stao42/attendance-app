@@ -242,7 +242,11 @@ class AttendanceController extends Controller
         $validated = $request->validate([
             'clock_in' => 'required|date_format:H:i',
             'clock_out' => 'nullable|date_format:H:i',
-            'notes' => 'required|string',
+            'notes' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (trim($value) === '') {
+                    $fail('備考を記入してください');
+                }
+            }],
             'break_starts' => 'nullable|array',
             'break_starts.*' => 'nullable|date_format:H:i',
             'break_ends' => 'nullable|array',

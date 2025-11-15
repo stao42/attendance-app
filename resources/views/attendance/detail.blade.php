@@ -396,7 +396,7 @@
                         <div class="attendance-detail-label">備考</div>
                         <div class="attendance-detail-value">
                             @if($isEditable)
-                                <textarea name="notes" class="attendance-detail-notes-input" required>{{ old('notes', $record->notes ?? '') }}</textarea>
+                                <textarea name="notes" class="attendance-detail-notes-input">{{ old('notes', $record->notes ?? '') }}</textarea>
                                 @error('notes')
                                     <p class="attendance-detail-error">{{ $message }}</p>
                                 @enderror

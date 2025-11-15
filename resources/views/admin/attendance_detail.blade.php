@@ -419,7 +419,7 @@
                         <div class="admin-attendance-detail-label">備考</div>
                         <div class="admin-attendance-detail-value">
                             @if($isEditable)
-                                <textarea name="notes" class="admin-attendance-detail-notes-input" required {{ $hasPendingRequest ? 'disabled' : '' }}>{{ old('notes', $record->notes ?? '') }}</textarea>
+                                <textarea name="notes" class="admin-attendance-detail-notes-input" {{ $hasPendingRequest ? 'disabled' : '' }}>{{ old('notes', $record->notes ?? '') }}</textarea>
                                 @error('notes')
                                     <p class="admin-attendance-detail-error">{{ $message }}</p>
                                 @enderror
