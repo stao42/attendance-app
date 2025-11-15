@@ -90,8 +90,14 @@ Route::get('/email/verify', function () {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
 
-    return redirect('/attendance');
-})->middleware(['auth', 'signed'])->name('verification.verify');
+    // 認証後にログインセッションを確認し、適切にリダイレクト
+    if (Auth::check()) {
+        return redirect('/attendance');
+    } else {
+        // ログインしていない場合はログインページにリダイレクト
+        return redirect('/login')->with('verified', 'メール認証が完了しました。ログインしてください。');
+    }
+})->middleware(['signed'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
     if ($request->user()->hasVerifiedEmail()) {
