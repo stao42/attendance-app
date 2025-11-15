@@ -48,7 +48,6 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         event(new Registered($user));
-        $user->sendEmailVerificationNotification();
 
         return $user;
     }
