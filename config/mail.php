@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'preview_url' => env('MAIL_PREVIEW_URL', 'http://localhost:8025'),
+
 ];

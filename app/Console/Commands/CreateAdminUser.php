@@ -78,12 +78,16 @@ class CreateAdminUser extends Command
             'is_admin' => true,
         ]);
 
+        // メール認証通知を送信
+        $user->sendEmailVerificationNotification();
+
         $this->info("✓ 管理者ユーザーを作成しました！");
         $this->info("  名前: {$user->name}");
         $this->info("  メールアドレス: {$user->email}");
         $this->info("  パスワード: {$password}");
         $this->newLine();
         $this->info("管理者ログインURL: http://localhost:8000/admin/login");
+        $this->info("メール認証が必要です。MailHog（http://localhost:8025）で認証メールを確認してください。");
 
         return 0;
     }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -33,8 +33,13 @@ class RegisterController extends Controller
             'is_admin' => false,
         ]);
 
+        event(new Registered($user));
+
+        // メール認証通知を送信
+        $user->sendEmailVerificationNotification();
+
         Auth::login($user);
 
-        return redirect()->intended('/attendance');
+        return redirect()->route('verification.notice');
     }
 }

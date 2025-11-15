@@ -28,6 +28,10 @@ class AdminLoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            if (!Auth::user()->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice');
+            }
+
             // 管理者権限チェック
             if (!Auth::user()->is_admin) {
                 Auth::logout();
