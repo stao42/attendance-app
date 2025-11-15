@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\Admin\AdminLoginController;
@@ -33,7 +35,7 @@ Route::post('/admin/login', [AdminLoginController::class, 'login']);
 Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
 // 認証が必要なルート（一般ユーザー）
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     // 勤怠登録画面（PG03）
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 
@@ -55,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // 認証が必要なルート（管理者）
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
         // 勤怠一覧画面（PG08）
         Route::get('/attendance/list', [AdminController::class, 'attendanceList'])->name('attendance.list');
 
@@ -73,9 +75,30 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 // 認証が必要なルート（管理者 - PG13は一般ユーザーと同じパスを使用）
 // コントローラー内で管理者権限をチェック
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
         // 修正申請承認画面（PG13）
         Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approveDetail'])->name('admin.stamp_correction_request.approve.detail');
         Route::post('/stamp_correction_request/approve/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'approve'])->name('admin.stamp_correction_request.approve');
         Route::post('/stamp_correction_request/reject/{attendance_correct_request_id}', [StampCorrectionRequestController::class, 'reject'])->name('admin.stamp_correction_request.reject');
 });
+
+// メール認証ルート
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect('/attendance');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return redirect()->intended('/attendance');
+    }
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');

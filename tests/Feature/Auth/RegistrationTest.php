@@ -85,7 +85,7 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_valid_registration_creates_user_and_logs_them_in(): void
+    public function test_valid_registration_creates_user_and_redirects_to_verification_notice(): void
     {
         $response = $this->post('/register', [
             'name' => 'Valid User',
@@ -94,7 +94,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect('/attendance');
+        $response->assertRedirect(route('verification.notice'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'valid@example.com',

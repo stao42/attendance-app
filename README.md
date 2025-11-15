@@ -27,6 +27,8 @@ Laravel + Docker + MySQL で構築された勤怠管理システムです。Figm
 
 #### ユーザー認証
 - ✅ 会員登録（バリデーション付き）
+- ✅ メール認証（会員登録・初回ログイン時に必須）
+- ✅ 認証メール再送機能
 - ✅ ログイン/ログアウト
 - ✅ エラーメッセージ表示（日本語）
 
@@ -128,6 +130,14 @@ DB_PORT=3306
 DB_DATABASE=coachtech
 DB_USERNAME=root
 DB_PASSWORD=root
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_PREVIEW_URL=http://localhost:8025
 ```
 
 3. **Dockerコンテナのビルドと起動**
@@ -160,44 +170,41 @@ docker compose run --rm app composer install
 docker compose exec app php artisan key:generate
 ```
 
-6. **データベースのマイグレーション**
+6. **データベースのマイグレーションとシーダーの実行**
 
 ```bash
-# 本番用データベース (coachtech)
-docker compose exec app php artisan migrate
+docker compose exec app php artisan migrate:fresh --seed
 ```
 
-- Docker の MySQL サービスには初期化スクリプト（`docker/mysql/initdb.d/attendance_test.sql`）を配置しており、
-  コンテナ起動時にテスト用DB `attendance_test` も自動作成されます。
-
-7. **シーダーの実行（テストデータ作成）**
-
-```bash
-docker compose exec app php artisan db:seed
-```
-
-シーダー実行後、以下のユーザーでログインできます：
+7. **シーダー実行後、以下のユーザーでログインできます**
 
 - **管理者ユーザー**
   - Email: `admin@example.com`
   - Password: `password`
   - 権限: 管理者（すべての機能にアクセス可能）
   - ログインURL: http://localhost:8000/admin/login
+  - **注意**: メール認証が必要です。MailHog（http://localhost:8025）で認証メールを確認してください
 
 - **テストユーザー**
   - Email: `test@example.com`
   - Password: `password`
   - 権限: 一般ユーザー
   - ログインURL: http://localhost:8000/login
+  - **注意**: メール認証が必要です。MailHog（http://localhost:8025）で認証メールを確認してください
 
 ### アクセス
 
 - **アプリケーション**: http://localhost:8000
-- **phpMyAdmin**: http://localhost:8080（設定されている場合）
+- **phpMyAdmin**: http://localhost:8080
+- **MailHog（メール確認用）**: http://localhost:8025
 
 ### テストの実行
 
 PHPUnit は MySQL（ホスト名 `db`）上の `attendance_test` データベースを使用します。
+
+**テスト用データベースの設定**
+
+`phpunit.xml` にテスト用データベース設定が記載されており、自動的に `attendance_test` データベースが使用されます。
 
 1. **テスト用データベースを最新化**
 
@@ -211,11 +218,22 @@ php artisan migrate --force"
 2. **PHPUnit を実行**
 
 ```bash
+# 方法1: docker compose exec を使用
 docker compose exec app bash -lc "cd /var/www/html && ./vendor/bin/phpunit"
+
+# 方法2: artisan test コマンドを使用（推奨）
+docker compose exec app php artisan test
 ```
 
-※ すべての開発者が同じ Docker/MySQL でテストを再現できるよう、
-`phpunit.xml` にも上記の接続情報を記載しています。
+**テスト構成**
+
+- **Unit テスト**: `tests/Unit/` ディレクトリ
+- **Feature テスト**: `tests/Feature/` ディレクトリ
+  - `Auth/`: 認証関連テスト（ログイン、登録、メール認証）
+  - `Attendance/`: 勤怠関連テスト
+  - `Admin/`: 管理者機能テスト
+
+**注意**: すべての開発者が同じ Docker/MySQL でテストを再現できるよう、`phpunit.xml` に接続情報を記載しています。
 
 ## 画面一覧
 
@@ -225,6 +243,7 @@ docker compose exec app bash -lc "cd /var/www/html && ./vendor/bin/phpunit"
 |--------|-----|------|
 | ログイン画面 | `/login` | 一般ユーザーのログイン |
 | 会員登録画面 | `/register` | 新規ユーザー登録 |
+| メール認証画面 | `/email/verify` | メール認証の案内・再送 |
 | 打刻画面（PG03） | `/attendance` | 出勤/退勤/休憩の打刻 |
 | 勤怠一覧画面（PG04） | `/attendance/list` | 月別の勤怠記録一覧 |
 | 勤怠詳細画面（PG05） | `/attendance/detail/{id}` | 勤怠記録の詳細表示・修正申請 |
@@ -252,6 +271,9 @@ POST /login                                    # ログイン処理
 GET  /register                                 # 会員登録画面
 POST /register                                 # 会員登録処理
 POST /logout                                   # ログアウト処理
+GET  /email/verify                             # メール認証案内画面
+GET  /email/verify/{id}/{hash}                 # メール認証処理
+POST /email/verification-notification          # 認証メール再送
 GET  /attendance                               # 打刻画面
 POST /attendance/clock-in                      # 出勤打刻
 POST /attendance/clock-out                     # 退勤打刻
@@ -276,9 +298,9 @@ GET  /admin/staff/list                         # スタッフ一覧
 GET  /admin/attendance/staff/{id}              # スタッフ別勤怠一覧
 GET  /admin/attendance/staff/{id}/csv          # CSVエクスポート
 GET  /stamp_correction_request/list            # 申請一覧（管理者）
-GET  /stamp_correction_request/approve/{id}    # 承認画面
-POST /stamp_correction_request/approve/{id}    # 承認処理
-POST /stamp_correction_request/reject/{id}     # 却下処理
+GET  /stamp_correction_request/approve/{attendance_correct_request_id}    # 承認画面
+POST /stamp_correction_request/approve/{attendance_correct_request_id}    # 承認処理
+POST /stamp_correction_request/reject/{attendance_correct_request_id}     # 却下処理
 ```
 
 ## データベース構成
@@ -289,6 +311,8 @@ POST /stamp_correction_request/reject/{id}     # 却下処理
 - `attendance_records`: 勤怠記録
 - `breaks`: 休憩記録
 - `stamp_correction_requests`: 打刻修正申請
+
+![ER図](public/images/ER図.png)
 
 ### 主要なリレーション
 
@@ -309,6 +333,30 @@ database/migrations/
 ```
 
 ## 開発ガイド
+
+### メール認証フロー
+
+このアプリでは会員登録および初回ログイン時にメール認証を必須としています。
+
+1. **初回登録**
+   - 会員登録完了後、自動的にメール認証画面（`/email/verify`）にリダイレクトされます
+   - 登録時に送信された認証メール内のリンクをクリックして認証を完了してください
+   - 認証が完了するまで、アプリケーションの機能は利用できません
+
+2. **ログイン**
+   - メール認証が完了していないアカウントでログインしようとすると、認証画面へリダイレクトされます
+   - 認証完了後、打刻画面（`/attendance`）にリダイレクトされます
+
+3. **認証メール再送**
+   - 認証画面の「認証メールを再送」ボタンから再送できます
+   - 再送は1分間に最大6回まで（レート制限あり）
+
+4. **メール確認（ローカル環境）**
+   - ローカル環境では MailHog を利用しています
+   - `http://localhost:8025` を開くと受信メール（Verify Email）が確認できます
+   - 認証画面には「認証はこちらから」ボタンが表示され、MailHogのプレビューURLに直接アクセスできます
+
+**注意**: 管理者ユーザーもメール認証が必要です。
 
 ### コンテナ内でのコマンド実行
 
@@ -424,6 +472,7 @@ coachtech/
 │       ├── auth/
 │       │   ├── login.blade.php                     # ログイン画面
 │       │   ├── register.blade.php                   # 会員登録画面
+│       │   ├── verify-email.blade.php              # メール認証画面
 │       │   └── admin/
 │       │       └── login.blade.php                 # 管理者ログイン画面
 │       ├── attendance/
@@ -593,6 +642,8 @@ docker compose exec app php artisan migrate:fresh --seed
 
 ### ✅ 認証機能
 - 会員登録、ログイン、ログアウト（一般ユーザー・管理者）
+- メール認証（会員登録・初回ログイン時に必須）
+- 認証メール再送機能
 - 管理者権限チェック
 - セッション管理
 

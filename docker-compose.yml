@@ -48,6 +48,14 @@ services:
     networks:
       - coachtech_network
 
+  mailhog:
+    image: mailhog/mailhog
+    container_name: coachtech_mailhog
+    ports:
+      - "8025:8025"
+    networks:
+      - coachtech_network
+
 networks:
   coachtech_network:
     driver: bridge
